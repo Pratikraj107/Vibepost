@@ -444,7 +444,7 @@ export default function Dashboard() {
                       <span className="text-green-400 font-semibold">Content Generated Successfully!</span>
                     </div>
 
-                    {videoGeneratedContent.tweet && (
+                    {generatedContent.tweet && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
@@ -452,7 +452,7 @@ export default function Dashboard() {
                             Tweet
                           </h3>
                           <button
-                            onClick={() => copyToClipboard(videoGeneratedContent.tweet!, 'tweet')}
+                            onClick={() => copyToClipboard(generatedContent.tweet!, 'tweet')}
                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                           >
                             {copiedItem === 'tweet' ? (
@@ -468,11 +468,11 @@ export default function Dashboard() {
                             )}
                           </button>
                         </div>
-                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent.tweet}</p>
+                        <p className="text-slate-300 leading-relaxed">{generatedContent.tweet}</p>
                       </div>
                     )}
 
-                    {videoGeneratedContent.linkedin && (
+                    {generatedContent.linkedin && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
@@ -480,7 +480,7 @@ export default function Dashboard() {
                             LinkedIn Post
                           </h3>
                           <button
-                            onClick={() => copyToClipboard(videoGeneratedContent.linkedin!, 'linkedin')}
+                            onClick={() => copyToClipboard(generatedContent.linkedin!, 'linkedin')}
                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                           >
                             {copiedItem === 'linkedin' ? (
@@ -496,19 +496,19 @@ export default function Dashboard() {
                             )}
                           </button>
                         </div>
-                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent.linkedin}</p>
+                        <p className="text-slate-300 leading-relaxed">{generatedContent.linkedin}</p>
                       </div>
                     )}
 
-                    {videoGeneratedContent.twitterThread && videoGeneratedContent.twitterThread.length > 0 && (
+                    {generatedContent.twitterThread && generatedContent.twitterThread.length > 0 && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
                             <span className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs font-bold">🧵</span>
-                            Twitter Thread ({videoGeneratedContent.twitterThread.length} tweets)
+                            Twitter Thread ({generatedContent.twitterThread.length} tweets)
                           </h3>
                           <button
-                            onClick={() => copyToClipboard(videoGeneratedContent.twitterThread!.join('\n\n'), 'thread')}
+                            onClick={() => copyToClipboard(generatedContent.twitterThread!.join('\n\n'), 'thread')}
                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                           >
                             {copiedItem === 'thread' ? (
@@ -525,7 +525,7 @@ export default function Dashboard() {
                           </button>
                         </div>
                         <div className="space-y-3">
-                          {videoGeneratedContent.twitterThread.map((tweet, index) => (
+                          {generatedContent.twitterThread.map((tweet, index) => (
                             <div key={index} className="bg-slate-700/50 rounded-lg p-3 border border-slate-600/50">
                               <div className="flex items-start justify-between">
                                 <p className="text-slate-300 leading-relaxed flex-1">{tweet}</p>
@@ -546,11 +546,11 @@ export default function Dashboard() {
                       </div>
                     )}
 
-                    {videoGeneratedContent.hashtags && videoGeneratedContent.hashtags.length > 0 && (
+                    {generatedContent.hashtags && generatedContent.hashtags.length > 0 && (
                       <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
                         <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
                         <div className="flex flex-wrap gap-2">
-                          {videoGeneratedContent.hashtags.map((hashtag, index) => (
+                          {generatedContent.hashtags.map((hashtag, index) => (
                             <span
                               key={index}
                               className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-sm"
@@ -840,7 +840,7 @@ export default function Dashboard() {
                             Tweet
                           </h3>
                           <button
-                            onClick={() => copyToClipboard(videoGeneratedContent.tweet!, 'tweet')}
+                            onClick={() => copyToClipboard(generatedContent.tweet!, 'tweet')}
                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                           >
                             {copiedItem === 'tweet' ? (
@@ -856,11 +856,11 @@ export default function Dashboard() {
                             )}
                           </button>
                         </div>
-                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent.tweet}</p>
+                        <p className="text-slate-300 leading-relaxed">{generatedContent.tweet}</p>
                       </div>
                     )}
 
-                    {videoGeneratedContent.linkedin && (
+                    {generatedContent.linkedin && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
@@ -868,7 +868,7 @@ export default function Dashboard() {
                             LinkedIn Post
                           </h3>
                           <button
-                            onClick={() => copyToClipboard(videoGeneratedContent.linkedin!, 'linkedin')}
+                            onClick={() => copyToClipboard(generatedContent.linkedin!, 'linkedin')}
                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                           >
                             {copiedItem === 'linkedin' ? (
@@ -884,19 +884,19 @@ export default function Dashboard() {
                             )}
                           </button>
                         </div>
-                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent.linkedin}</p>
+                        <p className="text-slate-300 leading-relaxed">{generatedContent.linkedin}</p>
                       </div>
                     )}
 
-                    {videoGeneratedContent.twitterThread && videoGeneratedContent.twitterThread.length > 0 && (
+                    {generatedContent.twitterThread && generatedContent.twitterThread.length > 0 && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
                             <span className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs font-bold">🧵</span>
-                            Twitter Thread ({videoGeneratedContent.twitterThread.length} tweets)
+                            Twitter Thread ({generatedContent.twitterThread.length} tweets)
                           </h3>
                           <button
-                            onClick={() => copyToClipboard(videoGeneratedContent.twitterThread!.join('\n\n'), 'thread')}
+                            onClick={() => copyToClipboard(generatedContent.twitterThread!.join('\n\n'), 'thread')}
                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                           >
                             {copiedItem === 'thread' ? (
@@ -913,7 +913,7 @@ export default function Dashboard() {
                           </button>
                         </div>
                         <div className="space-y-3">
-                          {videoGeneratedContent.twitterThread.map((tweet, index) => (
+                          {generatedContent.twitterThread.map((tweet, index) => (
                             <div key={index} className="bg-slate-700/50 rounded-lg p-3 border border-slate-600/50">
                               <div className="flex items-start justify-between">
                                 <p className="text-slate-300 leading-relaxed flex-1">{tweet}</p>
@@ -934,11 +934,11 @@ export default function Dashboard() {
                       </div>
                     )}
 
-                    {videoGeneratedContent.hashtags && videoGeneratedContent.hashtags.length > 0 && (
+                    {generatedContent.hashtags && generatedContent.hashtags.length > 0 && (
                       <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
                         <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
                         <div className="flex flex-wrap gap-2">
-                          {videoGeneratedContent.hashtags.map((hashtag, index) => (
+                          {generatedContent.hashtags.map((hashtag, index) => (
                             <span
                               key={index}
                               className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-sm"
@@ -1077,7 +1077,7 @@ export default function Dashboard() {
                       <span className="text-green-400 font-semibold">Video processed successfully!</span>
                     </div>
 
-                    {videoGeneratedContent.tweet && (
+                    {generatedContent.tweet && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
@@ -1085,7 +1085,7 @@ export default function Dashboard() {
                             Tweet
                           </h3>
                           <button
-                            onClick={() => copyToClipboard(videoGeneratedContent.tweet!, 'tweet')}
+                            onClick={() => copyToClipboard(generatedContent.tweet!, 'tweet')}
                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                           >
                             {copiedItem === 'tweet' ? (
@@ -1101,11 +1101,11 @@ export default function Dashboard() {
                             )}
                           </button>
                         </div>
-                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent.tweet}</p>
+                        <p className="text-slate-300 leading-relaxed">{generatedContent.tweet}</p>
                       </div>
                     )}
 
-                    {videoGeneratedContent.linkedin && (
+                    {generatedContent.linkedin && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
@@ -1113,7 +1113,7 @@ export default function Dashboard() {
                             LinkedIn Post
                           </h3>
                           <button
-                            onClick={() => copyToClipboard(videoGeneratedContent.linkedin!, 'linkedin')}
+                            onClick={() => copyToClipboard(generatedContent.linkedin!, 'linkedin')}
                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                           >
                             {copiedItem === 'linkedin' ? (
@@ -1129,19 +1129,19 @@ export default function Dashboard() {
                             )}
                           </button>
                         </div>
-                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent.linkedin}</p>
+                        <p className="text-slate-300 leading-relaxed">{generatedContent.linkedin}</p>
                       </div>
                     )}
 
-                    {videoGeneratedContent.twitterThread && videoGeneratedContent.twitterThread.length > 0 && (
+                    {generatedContent.twitterThread && generatedContent.twitterThread.length > 0 && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
                             <span className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs font-bold">🧵</span>
-                            Twitter Thread ({videoGeneratedContent.twitterThread.length} tweets)
+                            Twitter Thread ({generatedContent.twitterThread.length} tweets)
                           </h3>
                           <button
-                            onClick={() => copyToClipboard(videoGeneratedContent.twitterThread!.join('\n\n'), 'thread')}
+                            onClick={() => copyToClipboard(generatedContent.twitterThread!.join('\n\n'), 'thread')}
                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                           >
                             {copiedItem === 'thread' ? (
@@ -1158,7 +1158,7 @@ export default function Dashboard() {
                           </button>
                         </div>
                         <div className="space-y-3">
-                          {videoGeneratedContent.twitterThread.map((tweet, index) => (
+                          {generatedContent.twitterThread.map((tweet, index) => (
                             <div key={index} className="bg-slate-700/50 rounded-lg p-3 border border-slate-600/50">
                               <div className="flex items-start justify-between">
                                 <p className="text-slate-300 leading-relaxed flex-1">{tweet}</p>
@@ -1179,11 +1179,11 @@ export default function Dashboard() {
                       </div>
                     )}
 
-                    {videoGeneratedContent.hashtags && videoGeneratedContent.hashtags.length > 0 && (
+                    {generatedContent.hashtags && generatedContent.hashtags.length > 0 && (
                       <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
                         <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
                         <div className="flex flex-wrap gap-2">
-                          {videoGeneratedContent.hashtags.map((hashtag, index) => (
+                          {generatedContent.hashtags.map((hashtag, index) => (
                             <span
                               key={index}
                               className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-sm"
