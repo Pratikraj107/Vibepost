@@ -312,19 +312,25 @@ export default function Dashboard() {
 
     try {
       // Create a specific prompt that tells the AI to follow the instructions exactly
-      const specificPrompt = `FOLLOW THESE INSTRUCTIONS EXACTLY. Do not deviate from any requirement:
+      const specificPrompt = `You are a content creation expert. Your task is to create a ${prompt.social === 'linkedin' ? 'LinkedIn post' : 'tweet'} by following these EXACT instructions:
 
+INSTRUCTIONS TO FOLLOW:
 ${prompt.prompts}
 
-CRITICAL: You must follow every single requirement in the instructions above. This includes:
-- Exact character limits (like 600 characters)
-- Specific structure requirements (like hierarchical structure)
-- Specific hook formats (like 10 words or less with numbers)
-- Specific elements (like P.S. with engaging question)
-- Style requirements (like no emojis)
-- Any other detailed specifications
+STEP-BY-STEP PROCESS:
+1. Read the instructions above carefully
+2. Identify all specific requirements (character limits, structure, format, elements)
+3. Create content that follows EVERY requirement exactly
+4. Do not deviate from any specification
 
-Generate the content now, following ALL requirements precisely.`;
+REQUIREMENTS TO CHECK:
+- Character limits: Follow exactly if specified
+- Structure: Use the exact structure specified (hierarchical, etc.)
+- Hook format: Create the exact hook format specified
+- Elements: Include all specified elements (P.S., questions, etc.)
+- Style: Follow all style requirements (no emojis, etc.)
+
+Generate the content now, ensuring you follow ALL requirements precisely.`;
       
       const content = await generateContent({
         topic: specificPrompt,
@@ -386,19 +392,25 @@ Generate the content now, following ALL requirements precisely.`;
         : prompt.prompts;
       
       // Create a specific prompt that tells the AI to follow the instructions exactly
-      const specificPrompt = `FOLLOW THESE INSTRUCTIONS EXACTLY. Do not deviate from any requirement:
+      const specificPrompt = `You are a content creation expert. Your task is to create a ${prompt.social === 'linkedin' ? 'LinkedIn post' : 'tweet'} by following these EXACT instructions:
 
+INSTRUCTIONS TO FOLLOW:
 ${promptText}
 
-CRITICAL: You must follow every single requirement in the instructions above. This includes:
-- Exact character limits (like 600 characters)
-- Specific structure requirements (like hierarchical structure)
-- Specific hook formats (like 10 words or less with numbers)
-- Specific elements (like P.S. with engaging question)
-- Style requirements (like no emojis)
-- Any other detailed specifications
+STEP-BY-STEP PROCESS:
+1. Read the instructions above carefully
+2. Identify all specific requirements (character limits, structure, format, elements)
+3. Create content that follows EVERY requirement exactly
+4. Do not deviate from any specification
 
-Generate the content now, following ALL requirements precisely.`;
+REQUIREMENTS TO CHECK:
+- Character limits: Follow exactly if specified
+- Structure: Use the exact structure specified (hierarchical, etc.)
+- Hook format: Create the exact hook format specified
+- Elements: Include all specified elements (P.S., questions, etc.)
+- Style: Follow all style requirements (no emojis, etc.)
+
+Generate the content now, ensuring you follow ALL requirements precisely.`;
       
       const content = await generateContent({
         topic: specificPrompt,
