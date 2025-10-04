@@ -311,10 +311,20 @@ export default function Dashboard() {
     setPromptGeneratedContent(prev => ({ ...prev, [prompt.id]: null }));
 
     try {
-      // Create a specific prompt that tells the AI to use the prompt as a template
-      const specificPrompt = `Use this prompt template to create a ${prompt.social === 'linkedin' ? 'LinkedIn post' : 'tweet'}: "${prompt.prompts}"
+      // Create a specific prompt that tells the AI to follow the instructions exactly
+      const specificPrompt = `FOLLOW THESE INSTRUCTIONS EXACTLY. Do not deviate from any requirement:
 
-Please generate the actual content by following this prompt template exactly. Do not use placeholders like [Topic] or [Trend 1]. Instead, create specific, detailed content that follows the structure and style of the prompt template.`;
+${prompt.prompts}
+
+CRITICAL: You must follow every single requirement in the instructions above. This includes:
+- Exact character limits (like 600 characters)
+- Specific structure requirements (like hierarchical structure)
+- Specific hook formats (like 10 words or less with numbers)
+- Specific elements (like P.S. with engaging question)
+- Style requirements (like no emojis)
+- Any other detailed specifications
+
+Generate the content now, following ALL requirements precisely.`;
       
       const content = await generateContent({
         topic: specificPrompt,
@@ -375,10 +385,20 @@ Please generate the actual content by following this prompt template exactly. Do
         ? editedPromptText 
         : prompt.prompts;
       
-      // Create a specific prompt that tells the AI to use the prompt as a template
-      const specificPrompt = `Use this prompt template to create a ${prompt.social === 'linkedin' ? 'LinkedIn post' : 'tweet'}: "${promptText}"
+      // Create a specific prompt that tells the AI to follow the instructions exactly
+      const specificPrompt = `FOLLOW THESE INSTRUCTIONS EXACTLY. Do not deviate from any requirement:
 
-Please generate the actual content by following this prompt template exactly. Do not use placeholders like [Topic] or [Trend 1]. Instead, create specific, detailed content that follows the structure and style of the prompt template.`;
+${promptText}
+
+CRITICAL: You must follow every single requirement in the instructions above. This includes:
+- Exact character limits (like 600 characters)
+- Specific structure requirements (like hierarchical structure)
+- Specific hook formats (like 10 words or less with numbers)
+- Specific elements (like P.S. with engaging question)
+- Style requirements (like no emojis)
+- Any other detailed specifications
+
+Generate the content now, following ALL requirements precisely.`;
       
       const content = await generateContent({
         topic: specificPrompt,
