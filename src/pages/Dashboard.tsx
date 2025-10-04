@@ -336,7 +336,8 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
         topic: promptText, // Pass the actual prompt content directly
         contentType: prompt.social === 'linkedin' ? 'linkedin' : 'tweet',
         tone: 'engaging',
-        targetAudience: 'general'
+        targetAudience: 'general',
+        webSearch: false // Disable web search for prompt library
       });
       setPromptGeneratedContent(prev => ({ ...prev, [prompt.id]: content }));
     } catch (error) {
@@ -416,7 +417,8 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
         topic: promptText, // Pass the actual prompt content directly
         contentType: prompt.social === 'linkedin' ? 'linkedin' : 'tweet',
         tone: 'engaging',
-        targetAudience: 'general'
+        targetAudience: 'general',
+        webSearch: false // Disable web search for prompt library
       });
       setPromptGeneratedContent(prev => ({ ...prev, [prompt.id]: content }));
     } catch (error) {

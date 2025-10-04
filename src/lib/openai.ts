@@ -117,30 +117,9 @@ The Winning Structure (ONLY when no specific structure is provided):
     }
   };
 
-  const userPrompt = `TASK: Generate a ${request.contentType} following these EXACT instructions.
+  const userPrompt = `Follow these instructions exactly:
 
-INSTRUCTIONS TO FOLLOW:
-"""
 ${request.topic}
-"""
-
-CRITICAL REQUIREMENTS:
-1. Read every word of the instructions above
-2. Follow every single requirement exactly as specified
-3. Do not deviate from character limits, structure, format, or style requirements
-4. If instructions specify "600 characters" - stay within 600 characters
-5. If instructions specify "hierarchical structure" - use hierarchical structure
-6. If instructions specify "10 words or less hook" - create exactly that hook format
-7. If instructions specify "no emojis" - do not use any emojis
-8. If instructions specify "P.S. with engaging question" - include exactly that
-9. Follow all other specifications precisely
-
-OUTPUT REQUIREMENTS:
-- Generate content that matches the exact format and structure specified
-- Ensure all specified elements are included
-- Maintain the exact character limits if specified
-- Use the exact hook format if specified
-- Include all required elements (P.S., questions, etc.)
 
 ${request.tone ? `Tone: ${request.tone}` : ''}
 ${request.targetAudience ? `Target audience: ${request.targetAudience}` : ''}
