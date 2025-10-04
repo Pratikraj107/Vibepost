@@ -333,7 +333,7 @@ REQUIREMENTS TO CHECK:
 Generate the content now, ensuring you follow ALL requirements precisely.`;
       
       const content = await generateContent({
-        topic: specificPrompt,
+        topic: promptText, // Pass the actual prompt content directly
         contentType: prompt.social === 'linkedin' ? 'linkedin' : 'tweet',
         tone: 'engaging',
         targetAudience: 'general'
@@ -413,7 +413,7 @@ REQUIREMENTS TO CHECK:
 Generate the content now, ensuring you follow ALL requirements precisely.`;
       
       const content = await generateContent({
-        topic: specificPrompt,
+        topic: promptText, // Pass the actual prompt content directly
         contentType: prompt.social === 'linkedin' ? 'linkedin' : 'tweet',
         tone: 'engaging',
         targetAudience: 'general'
