@@ -109,35 +109,49 @@ export async function generateContent(request: ContentGenerationRequest): Promis
     }
   };
 
-  const userPrompt = `You MUST follow these detailed instructions EXACTLY. Do not deviate from the specified format, structure, length, or content requirements:
+  const userPrompt = `TASK: Generate a ${request.contentType} following these EXACT instructions.
 
+INSTRUCTIONS TO FOLLOW:
 """
 ${request.topic}
 """
 
-IMPORTANT: Follow every single requirement in the instructions above. If the instructions specify:
-- Character limits (like 600 characters), stay within that limit
-- Specific structure (like hierarchical structure), use that structure
-- Specific hooks (like 10 words or less), create that exact hook
-- Specific elements (like P.S. with engaging question), include those elements
-- No emojis, then do not use emojis
-- Specific tone or style, use that tone or style
+CRITICAL REQUIREMENTS:
+1. Read every word of the instructions above
+2. Follow every single requirement exactly as specified
+3. Do not deviate from character limits, structure, format, or style requirements
+4. If instructions specify "600 characters" - stay within 600 characters
+5. If instructions specify "hierarchical structure" - use hierarchical structure
+6. If instructions specify "10 words or less hook" - create exactly that hook format
+7. If instructions specify "no emojis" - do not use any emojis
+8. If instructions specify "P.S. with engaging question" - include exactly that
+9. Follow all other specifications precisely
 
-Generate the content now, following the instructions precisely:
+OUTPUT REQUIREMENTS:
+- Generate content that matches the exact format and structure specified
+- Ensure all specified elements are included
+- Maintain the exact character limits if specified
+- Use the exact hook format if specified
+- Include all required elements (P.S., questions, etc.)
 
 ${request.tone ? `Tone: ${request.tone}` : ''}
 ${request.targetAudience ? `Target audience: ${request.targetAudience}` : ''}
-${webSearchResults}`;
+${webSearchResults}
+
+Generate the content now, following ALL requirements precisely:`;
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o", // Using GPT-4o for better instruction following
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
       ],
-      temperature: 0.7,
-      max_tokens: 1000
+      temperature: 0.3, // Lower temperature for more consistent, instruction-following output
+      max_tokens: 1500, // Increased token limit for longer, more detailed content
+      top_p: 0.9, // Focus on most likely tokens for better quality
+      frequency_penalty: 0.1, // Slight penalty to avoid repetition
+      presence_penalty: 0.1 // Slight penalty to encourage new content
     });
 
     const content = completion.choices[0]?.message?.content;
