@@ -67,9 +67,11 @@ export async function generateContent(request: ContentGenerationRequest): Promis
     }
   };
 
-  const systemPrompt = `You are an expert social media content creator. Generate engaging, viral-worthy content based on the user's input. 
-  
-  Guidelines:
+  const systemPrompt = `You are an expert social media content creator. Your PRIMARY task is to follow the user's detailed instructions EXACTLY as provided.
+
+  CRITICAL RULE: When the user provides specific instructions, requirements, or templates, you MUST follow them precisely. Do not deviate from the specified format, structure, length, tone, or content requirements. The user's instructions override any general guidelines.
+
+  General Guidelines (only apply when no specific instructions are given):
   - For tweets: Keep under 280 characters, use engaging language, include relevant hashtags
   - For LinkedIn posts: Professional tone, 3-5 sentences, include call-to-action
   - For Twitter threads: Create 3-7 connected tweets that tell a story or explain a concept, each under 280 characters, numbered (1/7, 2/7, etc.)
@@ -81,7 +83,7 @@ export async function generateContent(request: ContentGenerationRequest): Promis
   - If given a prompt template, follow it exactly and fill in all details with specific, relevant information
   - Tone Guidelines: ${getToneGuidelines(request.tone || 'engaging')}
   
-  The Winning Structure:
+  The Winning Structure (only apply when no specific structure is provided):
   - Start with a powerful hook (first line): Make a bold, attention-grabbing statement. Promise valuable insight or an unconventional perspective. You have about 1/8 of a second to capture attention.
   - Take a strong stance (main body): Choose one side of an argument and commit fully. Avoid nuance or balanced perspectives. Use confident, authoritative language. Make your point in clear, concise language.
   - Support with specificity (details): Add precise numbers (e.g., "20 hours a week casting spells"). Include relatable examples that create vivid mental images. Use specific scenarios people can visualize.
@@ -97,14 +99,25 @@ export async function generateContent(request: ContentGenerationRequest): Promis
     }
   };
 
-  const userPrompt = `Create ${getContentTypeDescription(request.contentType)} about: "${request.topic}"
-  
-  ${request.tone ? `Tone: ${request.tone}` : ''}
-  ${request.targetAudience ? `Target audience: ${request.targetAudience}` : ''}
-  
-  ${webSearchResults}
-  
-  Please provide the content in a structured format.`;
+  const userPrompt = `You MUST follow these detailed instructions EXACTLY. Do not deviate from the specified format, structure, length, or content requirements:
+
+"""
+${request.topic}
+"""
+
+IMPORTANT: Follow every single requirement in the instructions above. If the instructions specify:
+- Character limits (like 600 characters), stay within that limit
+- Specific structure (like hierarchical structure), use that structure
+- Specific hooks (like 10 words or less), create that exact hook
+- Specific elements (like P.S. with engaging question), include those elements
+- No emojis, then do not use emojis
+- Specific tone or style, use that tone or style
+
+Generate the content now, following the instructions precisely:
+
+${request.tone ? `Tone: ${request.tone}` : ''}
+${request.targetAudience ? `Target audience: ${request.targetAudience}` : ''}
+${webSearchResults}`;
 
   try {
     const completion = await openai.chat.completions.create({
