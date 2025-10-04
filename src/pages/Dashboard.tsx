@@ -304,9 +304,13 @@ export default function Dashboard() {
     setGeneratedContent(null);
 
     try {
-      // Use the prompt text directly as the topic for content generation
+      // Create a specific prompt that tells the AI to use the prompt as a template
+      const specificPrompt = `Use this prompt template to create a ${prompt.social === 'linkedin' ? 'LinkedIn post' : 'tweet'}: "${prompt.prompts}"
+
+Please generate the actual content by following this prompt template exactly. Do not use placeholders like [Topic] or [Trend 1]. Instead, create specific, detailed content that follows the structure and style of the prompt template.`;
+      
       const content = await generateContent({
-        topic: prompt.prompts,
+        topic: specificPrompt,
         contentType: prompt.social === 'linkedin' ? 'linkedin' : 'tweet',
         tone: 'engaging',
         targetAudience: 'general'
@@ -359,8 +363,13 @@ export default function Dashboard() {
         ? editedPromptText 
         : prompt.prompts;
       
+      // Create a specific prompt that tells the AI to use the prompt as a template
+      const specificPrompt = `Use this prompt template to create a ${prompt.social === 'linkedin' ? 'LinkedIn post' : 'tweet'}: "${promptText}"
+
+Please generate the actual content by following this prompt template exactly. Do not use placeholders like [Topic] or [Trend 1]. Instead, create specific, detailed content that follows the structure and style of the prompt template.`;
+      
       const content = await generateContent({
-        topic: promptText,
+        topic: specificPrompt,
         contentType: prompt.social === 'linkedin' ? 'linkedin' : 'tweet',
         tone: 'engaging',
         targetAudience: 'general'

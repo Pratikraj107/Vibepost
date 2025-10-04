@@ -77,6 +77,8 @@ export async function generateContent(request: ContentGenerationRequest): Promis
   - Use emojis appropriately
   - Include relevant hashtags (3-5 for tweets, 2-3 for LinkedIn, 1-2 per thread tweet)
   - Ensure content is original and compelling
+  - NEVER use placeholders like [Topic], [Trend 1], [describe shift], etc. Always provide specific, detailed content
+  - If given a prompt template, follow it exactly and fill in all details with specific, relevant information
   - Tone Guidelines: ${getToneGuidelines(request.tone || 'engaging')}
   
   The Winning Structure:
