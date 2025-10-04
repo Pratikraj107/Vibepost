@@ -62,7 +62,6 @@ export default function Dashboard() {
   const [isAddingPrompt, setIsAddingPrompt] = useState(false);
   const [showAddPrompt, setShowAddPrompt] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
-  const [promptTopic, setPromptTopic] = useState('');
   const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
   const [editedPromptText, setEditedPromptText] = useState('');
 
@@ -300,21 +299,14 @@ export default function Dashboard() {
     }
   };
 
-  const handleGenerateFromPrompt = async (prompt: Prompt, topic: string) => {
-    if (!topic.trim()) {
-      alert('Please enter a topic to generate content.');
-      return;
-    }
-
+  const handleGenerateFromPrompt = async (prompt: Prompt) => {
     setIsGenerating(true);
     setGeneratedContent(null);
 
     try {
-      // Replace [TOPIC] placeholder in the prompt with the actual topic
-      const processedPrompt = prompt.prompts.replace(/\[TOPIC\]/g, topic.trim());
-      
+      // Use the prompt text directly as the topic for content generation
       const content = await generateContent({
-        topic: processedPrompt,
+        topic: prompt.prompts,
         contentType: prompt.social === 'linkedin' ? 'linkedin' : 'tweet',
         tone: 'engaging',
         targetAudience: 'general'
@@ -357,12 +349,7 @@ export default function Dashboard() {
     setEditedPromptText('');
   };
 
-  const handleGenerateFromEditedPrompt = async (prompt: Prompt, topic: string) => {
-    if (!topic.trim()) {
-      alert('Please enter a topic to generate content.');
-      return;
-    }
-
+  const handleGenerateFromEditedPrompt = async (prompt: Prompt) => {
     setIsGenerating(true);
     setGeneratedContent(null);
 
@@ -372,11 +359,8 @@ export default function Dashboard() {
         ? editedPromptText 
         : prompt.prompts;
       
-      // Replace [TOPIC] placeholder in the prompt with the actual topic
-      const processedPrompt = promptText.replace(/\[TOPIC\]/g, topic.trim());
-      
       const content = await generateContent({
-        topic: processedPrompt,
+        topic: promptText,
         contentType: prompt.social === 'linkedin' ? 'linkedin' : 'tweet',
         tone: 'engaging',
         targetAudience: 'general'
@@ -1572,19 +1556,11 @@ export default function Dashboard() {
                          
                          {/* Generate Content from Prompt */}
                          <div className="mt-4 p-4 bg-slate-700/50 rounded-lg">
-                           <h4 className="text-white font-semibold mb-2">Generate Content</h4>
-                           <div className="flex gap-3">
-                             <input
-                               type="text"
-                               value={promptTopic}
-                               onChange={(e) => setPromptTopic(e.target.value)}
-                               placeholder="Enter topic to generate content..."
-                               className="flex-1 px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                             />
+                           <div className="flex justify-center">
                              <button
-                               onClick={() => handleGenerateFromEditedPrompt(prompt, promptTopic)}
+                               onClick={() => handleGenerateFromEditedPrompt(prompt)}
                                disabled={isGenerating}
-                               className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50"
+                               className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50"
                              >
                                {isGenerating ? (
                                  <>
@@ -1592,7 +1568,10 @@ export default function Dashboard() {
                                    Generating...
                                  </>
                                ) : (
-                                 'Generate'
+                                 <>
+                                   <Sparkles className="w-4 h-4" />
+                                   Generate Content
+                                 </>
                                )}
                              </button>
                            </div>
