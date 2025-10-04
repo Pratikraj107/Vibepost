@@ -116,6 +116,9 @@ ${webSearchResults}` : ''}`;
 }
 
 function parseGeneratedContent(content: string, contentType: string): GeneratedContent {
+  console.log('Parsing content for type:', contentType);
+  console.log('Raw content:', content);
+  
   const result: GeneratedContent = {};
   
   if (contentType === 'twitter-thread') {
@@ -148,9 +151,8 @@ function parseGeneratedContent(content: string, contentType: string): GeneratedC
     if (linkedinMatch) {
       result.linkedin = linkedinMatch[1].trim();
     } else {
-      // Fallback: take second paragraph or longer content
-      const lines = content.split('\n').filter(line => line.trim());
-      result.linkedin = lines[1]?.trim() || content;
+      // For LinkedIn posts, use the entire content as the LinkedIn post
+      result.linkedin = content.trim();
     }
   }
   
@@ -159,6 +161,7 @@ function parseGeneratedContent(content: string, contentType: string): GeneratedC
   const hashtags = content.match(hashtagRegex) || [];
   result.hashtags = [...new Set(hashtags)]; // Remove duplicates
   
+  console.log('Parsed result:', result);
   return result;
 }
 
