@@ -139,6 +139,7 @@ export interface Prompt {
   created_at: string;
   prompts: string;
   social: 'linkedin' | 'twitter';
+  title: string;
 }
 
 export async function getPrompts(social: 'linkedin' | 'twitter') {
@@ -151,10 +152,10 @@ export async function getPrompts(social: 'linkedin' | 'twitter') {
   return { prompts: data, error };
 }
 
-export async function addPrompt(prompt: string, social: 'linkedin' | 'twitter') {
+export async function addPrompt(prompt: string, social: 'linkedin' | 'twitter', title: string) {
   const { data, error } = await supabase
     .from('Prompts')
-    .insert([{ prompts: prompt, social }])
+    .insert([{ prompts: prompt, social, title }])
     .select();
   
   return { prompt: data?.[0], error };

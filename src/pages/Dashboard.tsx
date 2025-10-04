@@ -58,6 +58,7 @@ export default function Dashboard() {
   const [isLoadingPrompts, setIsLoadingPrompts] = useState(false);
   const [selectedPromptSocial, setSelectedPromptSocial] = useState<'linkedin' | 'twitter'>('linkedin');
   const [newPrompt, setNewPrompt] = useState('');
+  const [newPromptTitle, setNewPromptTitle] = useState('');
   const [isAddingPrompt, setIsAddingPrompt] = useState(false);
   const [showAddPrompt, setShowAddPrompt] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
@@ -257,17 +258,18 @@ export default function Dashboard() {
 
   const handleAddPrompt = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPrompt.trim()) return;
+    if (!newPrompt.trim() || !newPromptTitle.trim()) return;
 
     setIsAddingPrompt(true);
     try {
-      const { prompt, error } = await addPrompt(newPrompt.trim(), selectedPromptSocial);
+      const { prompt, error } = await addPrompt(newPrompt.trim(), selectedPromptSocial, newPromptTitle.trim());
       if (error) {
         console.error('Error adding prompt:', error);
         alert('Failed to add prompt. Please try again.');
       } else {
         setPrompts(prev => [prompt, ...prev]);
         setNewPrompt('');
+        setNewPromptTitle('');
         setShowAddPrompt(false);
         setSelectedPromptSocial('linkedin');
       }
@@ -1382,6 +1384,19 @@ export default function Dashboard() {
                        </div>
                        <div>
                          <label className="block text-sm font-semibold text-slate-300 mb-2">
+                           Title
+                         </label>
+                         <input
+                           type="text"
+                           value={newPromptTitle}
+                           onChange={(e) => setNewPromptTitle(e.target.value)}
+                           placeholder="Enter a title for your prompt..."
+                           className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           required
+                         />
+                       </div>
+                       <div>
+                         <label className="block text-sm font-semibold text-slate-300 mb-2">
                            Prompt Template
                          </label>
                          <textarea
@@ -1416,6 +1431,7 @@ export default function Dashboard() {
                            onClick={() => {
                              setShowAddPrompt(false);
                              setNewPrompt('');
+                             setNewPromptTitle('');
                              setSelectedPromptSocial('linkedin');
                            }}
                            className="px-4 py-2 bg-slate-700 text-slate-300 rounded-lg font-semibold hover:bg-slate-600 transition-colors"
@@ -1439,6 +1455,7 @@ export default function Dashboard() {
                        <div key={prompt.id} className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                          <div className="flex items-start justify-between mb-3">
                            <div className="flex-1">
+                             <h4 className="text-white font-semibold text-lg mb-2">{prompt.title}</h4>
                              <p className="text-slate-300 leading-relaxed mb-3">{prompt.prompts}</p>
                              <div className="flex items-center gap-4 text-sm text-slate-400">
                                <span className="flex items-center gap-1">
