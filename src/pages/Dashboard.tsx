@@ -82,6 +82,13 @@ export default function Dashboard() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Load prompts when switching to prompt library tab
+  useEffect(() => {
+    if (activeTab === 'prompts') {
+      loadPrompts(selectedPromptSocial);
+    }
+  }, [activeTab, selectedPromptSocial]);
+
   const handleLogout = async () => {
     try {
       await signOut();
@@ -315,13 +322,6 @@ export default function Dashboard() {
       setIsGenerating(false);
     }
   };
-
-  // Load prompts when switching to prompt library tab
-  useEffect(() => {
-    if (activeTab === 'prompts') {
-      loadPrompts(selectedPromptSocial);
-    }
-  }, [activeTab, selectedPromptSocial]);
 
   return (
     <div className="min-h-screen bg-slate-950 flex">
