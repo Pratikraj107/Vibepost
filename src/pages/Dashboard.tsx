@@ -64,6 +64,8 @@ export default function Dashboard() {
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
   const [editedPromptText, setEditedPromptText] = useState('');
+  const [promptGeneratedContent, setPromptGeneratedContent] = useState<{[key: number]: GeneratedContent}>({});
+  const [isGeneratingPrompt, setIsGeneratingPrompt] = useState<{[key: number]: boolean}>({});
 
   // Authentication state management
   useEffect(() => {
@@ -299,9 +301,14 @@ export default function Dashboard() {
     }
   };
 
-  const handleGenerateFromPrompt = async (prompt: Prompt) => {
-    setIsGenerating(true);
-    setGeneratedContent(null);
+  const handleGenerateFromPrompt = async (prompt: Prompt, event?: React.MouseEvent) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    setIsGeneratingPrompt(prev => ({ ...prev, [prompt.id]: true }));
+    setPromptGeneratedContent(prev => ({ ...prev, [prompt.id]: null }));
 
     try {
       // Create a specific prompt that tells the AI to use the prompt as a template
@@ -315,12 +322,12 @@ Please generate the actual content by following this prompt template exactly. Do
         tone: 'engaging',
         targetAudience: 'general'
       });
-      setGeneratedContent(content);
+      setPromptGeneratedContent(prev => ({ ...prev, [prompt.id]: content }));
     } catch (error) {
       console.error('Error generating content from prompt:', error);
       alert('Failed to generate content. Please check your OpenAI API key and try again.');
     } finally {
-      setIsGenerating(false);
+      setIsGeneratingPrompt(prev => ({ ...prev, [prompt.id]: false }));
     }
   };
 
@@ -353,9 +360,14 @@ Please generate the actual content by following this prompt template exactly. Do
     setEditedPromptText('');
   };
 
-  const handleGenerateFromEditedPrompt = async (prompt: Prompt) => {
-    setIsGenerating(true);
-    setGeneratedContent(null);
+  const handleGenerateFromEditedPrompt = async (prompt: Prompt, event?: React.MouseEvent) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    setIsGeneratingPrompt(prev => ({ ...prev, [prompt.id]: true }));
+    setPromptGeneratedContent(prev => ({ ...prev, [prompt.id]: null }));
 
     try {
       // Use the edited prompt text if we're editing, otherwise use the original
@@ -374,12 +386,12 @@ Please generate the actual content by following this prompt template exactly. Do
         tone: 'engaging',
         targetAudience: 'general'
       });
-      setGeneratedContent(content);
+      setPromptGeneratedContent(prev => ({ ...prev, [prompt.id]: content }));
     } catch (error) {
       console.error('Error generating content from prompt:', error);
       alert('Failed to generate content. Please check your OpenAI API key and try again.');
     } finally {
-      setIsGenerating(false);
+      setIsGeneratingPrompt(prev => ({ ...prev, [prompt.id]: false }));
     }
   };
 
@@ -593,9 +605,9 @@ Please generate the actual content by following this prompt template exactly. Do
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-5 h-5" />
-                        Generate Content
-                        <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <Sparkles className="w-5 h-5" />
+                    Generate Content
+                    <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
                   </button>
@@ -771,8 +783,8 @@ Please generate the actual content by following this prompt template exactly. Do
                         <div className="text-sm font-medium">{category.label}</div>
                       </button>
                     ))}
-                  </div>
-                </div>
+              </div>
+            </div>
 
                 {/* Custom Topic Input */}
                 <div className="mb-6">
@@ -981,9 +993,9 @@ Please generate the actual content by following this prompt template exactly. Do
                       </>
                     ) : (
                       <>
-                        <FileText className="w-5 h-5" />
-                        Summarize & Generate
-                        <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <FileText className="w-5 h-5" />
+                    Summarize & Generate
+                    <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
                   </button>
@@ -1226,9 +1238,9 @@ Please generate the actual content by following this prompt template exactly. Do
                       </>
                     ) : (
                       <>
-                        <Video className="w-5 h-5" />
-                        Summarize & Generate
-                        <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <Video className="w-5 h-5" />
+                    Summarize & Generate
+                    <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
                   </button>
@@ -1362,14 +1374,14 @@ Please generate the actual content by following this prompt template exactly. Do
                   </div>
                 )}
 
-                 <div className="mt-8 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
-                   <p className="text-sm text-slate-300">
-                     <span className="text-blue-400 font-semibold">💡 Tip:</span> Works with any YouTube video. The AI will analyze the transcript and create compelling social media content highlighting key takeaways.
-                   </p>
-                 </div>
-               </div>
-             </div>
-           )}
+                <div className="mt-8 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                  <p className="text-sm text-slate-300">
+                    <span className="text-blue-400 font-semibold">💡 Tip:</span> Works with any YouTube video. The AI will analyze the transcript and create compelling social media content highlighting key takeaways.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
            {activeTab === 'prompts' && (
              <div className="max-w-6xl mx-auto">
@@ -1567,11 +1579,11 @@ Please generate the actual content by following this prompt template exactly. Do
                          <div className="mt-4 p-4 bg-slate-700/50 rounded-lg">
                            <div className="flex justify-center">
                              <button
-                               onClick={() => handleGenerateFromEditedPrompt(prompt)}
-                               disabled={isGenerating}
+                               onClick={(e) => handleGenerateFromEditedPrompt(prompt, e)}
+                               disabled={isGeneratingPrompt[prompt.id]}
                                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50"
                              >
-                               {isGenerating ? (
+                               {isGeneratingPrompt[prompt.id] ? (
                                  <>
                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                    Generating...
@@ -1584,6 +1596,134 @@ Please generate the actual content by following this prompt template exactly. Do
                                )}
                              </button>
                            </div>
+                           
+                           {/* Individual Generated Content Display */}
+                           {promptGeneratedContent[prompt.id] && (
+                             <div className="mt-6 space-y-4">
+                               <div className="flex items-center gap-2 mb-4">
+                                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                 <span className="text-green-400 font-semibold">Content Generated Successfully!</span>
+                               </div>
+
+                               {promptGeneratedContent[prompt.id].tweet && (
+                                 <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
+                                   <div className="flex items-center justify-between mb-3">
+                                     <h3 className="text-white font-semibold flex items-center gap-2">
+                                       <span className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold">T</span>
+                                       Tweet
+                                     </h3>
+                                     <button
+                                       onClick={() => copyToClipboard(promptGeneratedContent[prompt.id].tweet!, 'tweet')}
+                                       className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
+                                     >
+                                       {copiedItem === 'tweet' ? (
+                                         <>
+                                           <Check className="w-4 h-4" />
+                                           Copied!
+                                         </>
+                                       ) : (
+                                         <>
+                                           <Copy className="w-4 h-4" />
+                                           Copy
+                                         </>
+                                       )}
+                                     </button>
+                                   </div>
+                                   <p className="text-slate-300 leading-relaxed">{promptGeneratedContent[prompt.id].tweet}</p>
+                                 </div>
+                               )}
+
+                               {promptGeneratedContent[prompt.id].linkedin && (
+                                 <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
+                                   <div className="flex items-center justify-between mb-3">
+                                     <h3 className="text-white font-semibold flex items-center gap-2">
+                                       <span className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold">L</span>
+                                       LinkedIn Post
+                                     </h3>
+                                     <button
+                                       onClick={() => copyToClipboard(promptGeneratedContent[prompt.id].linkedin!, 'linkedin')}
+                                       className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
+                                     >
+                                       {copiedItem === 'linkedin' ? (
+                                         <>
+                                           <Check className="w-4 h-4" />
+                                           Copied!
+                                         </>
+                                       ) : (
+                                         <>
+                                           <Copy className="w-4 h-4" />
+                                           Copy
+                                         </>
+                                       )}
+                                     </button>
+                                   </div>
+                                   <p className="text-slate-300 leading-relaxed">{promptGeneratedContent[prompt.id].linkedin}</p>
+                                 </div>
+                               )}
+
+                               {promptGeneratedContent[prompt.id].twitterThread && promptGeneratedContent[prompt.id].twitterThread!.length > 0 && (
+                                 <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
+                                   <div className="flex items-center justify-between mb-3">
+                                     <h3 className="text-white font-semibold flex items-center gap-2">
+                                       <span className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs font-bold">🧵</span>
+                                       Twitter Thread ({promptGeneratedContent[prompt.id].twitterThread!.length} tweets)
+                                     </h3>
+                                     <button
+                                       onClick={() => copyToClipboard(promptGeneratedContent[prompt.id].twitterThread!.join('\n\n'), 'thread')}
+                                       className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
+                                     >
+                                       {copiedItem === 'thread' ? (
+                                         <>
+                                           <Check className="w-4 h-4" />
+                                           Copied!
+                                         </>
+                                       ) : (
+                                         <>
+                                           <Copy className="w-4 h-4" />
+                                           Copy All
+                                         </>
+                                       )}
+                                     </button>
+                                   </div>
+                                   <div className="space-y-3">
+                                     {promptGeneratedContent[prompt.id].twitterThread!.map((tweet, index) => (
+                                       <div key={index} className="bg-slate-700/50 rounded-lg p-3 border border-slate-600/50">
+                                         <div className="flex items-start justify-between">
+                                           <p className="text-slate-300 leading-relaxed flex-1">{tweet}</p>
+                                           <button
+                                             onClick={() => copyToClipboard(tweet, `thread-${index}`)}
+                                             className="ml-2 flex items-center gap-1 px-2 py-1 bg-slate-600 hover:bg-slate-500 rounded text-xs text-slate-300 hover:text-white transition-colors"
+                                           >
+                                             {copiedItem === `thread-${index}` ? (
+                                               <Check className="w-3 h-3" />
+                                             ) : (
+                                               <Copy className="w-3 h-3" />
+                                             )}
+                                           </button>
+                                         </div>
+                                       </div>
+                                     ))}
+                                   </div>
+                                 </div>
+                               )}
+
+                               {promptGeneratedContent[prompt.id].hashtags && promptGeneratedContent[prompt.id].hashtags!.length > 0 && (
+                                 <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
+                                   <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
+                                   <div className="flex flex-wrap gap-2">
+                                     {promptGeneratedContent[prompt.id].hashtags!.map((hashtag, index) => (
+                                       <span
+                                         key={index}
+                                         className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-sm"
+                                       >
+                                         {hashtag}
+                                       </span>
+                                     ))}
+                                   </div>
+                                 </div>
+                               )}
+                             </div>
+                           )}
                          </div>
                        </div>
                      ))}
@@ -1596,87 +1736,6 @@ Please generate the actual content by following this prompt template exactly. Do
                    </div>
                  )}
 
-                 {/* Generated Content Display */}
-                 {generatedContent && (
-                   <div className="mt-8 space-y-6">
-                     <div className="flex items-center gap-2 mb-4">
-                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                       <span className="text-green-400 font-semibold">Content Generated Successfully!</span>
-                     </div>
-
-                     {generatedContent.tweet && (
-                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
-                         <div className="flex items-center justify-between mb-3">
-                           <h3 className="text-white font-semibold flex items-center gap-2">
-                             <span className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold">T</span>
-                             Tweet
-                           </h3>
-                           <button
-                             onClick={() => copyToClipboard(generatedContent.tweet!, 'tweet')}
-                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
-                           >
-                             {copiedItem === 'tweet' ? (
-                               <>
-                                 <Check className="w-4 h-4" />
-                                 Copied!
-                               </>
-                             ) : (
-                               <>
-                                 <Copy className="w-4 h-4" />
-                                 Copy
-                               </>
-                             )}
-                           </button>
-                         </div>
-                         <p className="text-slate-300 leading-relaxed">{generatedContent.tweet}</p>
-                       </div>
-                     )}
-
-                     {generatedContent.linkedin && (
-                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
-                         <div className="flex items-center justify-between mb-3">
-                           <h3 className="text-white font-semibold flex items-center gap-2">
-                             <span className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold">L</span>
-                             LinkedIn Post
-                           </h3>
-                           <button
-                             onClick={() => copyToClipboard(generatedContent.linkedin!, 'linkedin')}
-                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
-                           >
-                             {copiedItem === 'linkedin' ? (
-                               <>
-                                 <Check className="w-4 h-4" />
-                                 Copied!
-                               </>
-                             ) : (
-                               <>
-                                 <Copy className="w-4 h-4" />
-                                 Copy
-                               </>
-                             )}
-                           </button>
-                         </div>
-                         <p className="text-slate-300 leading-relaxed">{generatedContent.linkedin}</p>
-                       </div>
-                     )}
-
-                     {generatedContent.hashtags && generatedContent.hashtags.length > 0 && (
-                       <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
-                         <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
-                         <div className="flex flex-wrap gap-2">
-                           {generatedContent.hashtags.map((hashtag, index) => (
-                             <span
-                               key={index}
-                               className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-sm"
-                             >
-                               {hashtag}
-                             </span>
-                           ))}
-                         </div>
-                       </div>
-                     )}
-                   </div>
-                 )}
 
                  <div className="mt-8 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
                    <p className="text-sm text-slate-300">
@@ -1686,8 +1745,8 @@ Please generate the actual content by following this prompt template exactly. Do
                </div>
              </div>
            )}
-         </main>
-       </div>
-     </div>
-   );
- }
+        </main>
+      </div>
+    </div>
+  );
+}
