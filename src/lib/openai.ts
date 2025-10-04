@@ -77,7 +77,13 @@ export async function generateContent(request: ContentGenerationRequest): Promis
   - Use emojis appropriately
   - Include relevant hashtags (3-5 for tweets, 2-3 for LinkedIn, 1-2 per thread tweet)
   - Ensure content is original and compelling
-  - Tone Guidelines: ${getToneGuidelines(request.tone || 'engaging')}`;
+  - Tone Guidelines: ${getToneGuidelines(request.tone || 'engaging')}
+  
+  The Winning Structure:
+  - Start with a powerful hook (first line): Make a bold, attention-grabbing statement. Promise valuable insight or an unconventional perspective. You have about 1/8 of a second to capture attention.
+  - Take a strong stance (main body): Choose one side of an argument and commit fully. Avoid nuance or balanced perspectives. Use confident, authoritative language. Make your point in clear, concise language.
+  - Support with specificity (details): Add precise numbers (e.g., "20 hours a week casting spells"). Include relatable examples that create vivid mental images. Use specific scenarios people can visualize.
+  - Close with impact (optional follow-up): Consider a double-down tweet that reinforces your position. Add a call to action if relevant. Link to resources when appropriate.`;
 
   const getContentTypeDescription = (type: string) => {
     switch (type) {
