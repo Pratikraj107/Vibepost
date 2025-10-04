@@ -25,6 +25,7 @@ export interface ContentGenerationRequest {
   contentType: 'tweet' | 'linkedin' | 'twitter-thread' | 'both';
   tone?: 'professional' | 'casual' | 'engaging' | 'informative';
   targetAudience?: string;
+  webSearch?: boolean;
 }
 
 export interface GeneratedContent {
@@ -39,7 +40,7 @@ export async function generateContent(request: ContentGenerationRequest): Promis
   
   // Check if web search is needed for this topic
   let webSearchResults = '';
-  if (shouldSearchWeb(request.topic)) {
+  if (request.webSearch !== false && shouldSearchWeb(request.topic)) {
     try {
       console.log('Searching web for latest information...');
       const searchResults = await searchWeb(request.topic, 3);
@@ -82,8 +83,10 @@ export async function generateContent(request: ContentGenerationRequest): Promis
   const userPrompt = `${request.topic}
 
 ${request.tone ? `Tone: ${request.tone}` : ''}
-${request.targetAudience ? `Target audience: ${request.targetAudience}` : ''}
-${webSearchResults}`;
+${request.targetAudience ? `Target audience: ${request.targetAudience}` : ''}${webSearchResults ? `
+
+Latest information from web search:
+${webSearchResults}` : ''}`;
 
   try {
     const completion = await openai.chat.completions.create({
