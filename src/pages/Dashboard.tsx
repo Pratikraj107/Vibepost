@@ -63,6 +63,8 @@ export default function Dashboard() {
   const [showAddPrompt, setShowAddPrompt] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [promptTopic, setPromptTopic] = useState('');
+  const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
+  const [editedPromptText, setEditedPromptText] = useState('');
 
   // Authentication state management
   useEffect(() => {
@@ -310,6 +312,68 @@ export default function Dashboard() {
     try {
       // Replace [TOPIC] placeholder in the prompt with the actual topic
       const processedPrompt = prompt.prompts.replace(/\[TOPIC\]/g, topic.trim());
+      
+      const content = await generateContent({
+        topic: processedPrompt,
+        contentType: prompt.social === 'linkedin' ? 'linkedin' : 'tweet',
+        tone: 'engaging',
+        targetAudience: 'general'
+      });
+      setGeneratedContent(content);
+    } catch (error) {
+      console.error('Error generating content from prompt:', error);
+      alert('Failed to generate content. Please check your OpenAI API key and try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleEditPrompt = (prompt: Prompt) => {
+    setEditingPrompt(prompt);
+    setEditedPromptText(prompt.prompts);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingPrompt || !editedPromptText.trim()) return;
+
+    try {
+      // Update the prompt in the local state
+      setPrompts(prev => prev.map(p => 
+        p.id === editingPrompt.id 
+          ? { ...p, prompts: editedPromptText.trim() }
+          : p
+      ));
+      
+      setEditingPrompt(null);
+      setEditedPromptText('');
+    } catch (error) {
+      console.error('Error updating prompt:', error);
+      alert('Failed to update prompt. Please try again.');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPrompt(null);
+    setEditedPromptText('');
+  };
+
+  const handleGenerateFromEditedPrompt = async (prompt: Prompt, topic: string) => {
+    if (!topic.trim()) {
+      alert('Please enter a topic to generate content.');
+      return;
+    }
+
+    setIsGenerating(true);
+    setGeneratedContent(null);
+
+    try {
+      // Use the edited prompt text if we're editing, otherwise use the original
+      const promptText = editingPrompt && editingPrompt.id === prompt.id 
+        ? editedPromptText 
+        : prompt.prompts;
+      
+      // Replace [TOPIC] placeholder in the prompt with the actual topic
+      const processedPrompt = promptText.replace(/\[TOPIC\]/g, topic.trim());
       
       const content = await generateContent({
         topic: processedPrompt,
@@ -1453,24 +1517,57 @@ export default function Dashboard() {
                    <div className="space-y-4">
                      {prompts.map((prompt) => (
                        <div key={prompt.id} className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
-                         <div className="flex items-start justify-between mb-3">
-                           <div className="flex-1">
-                             <h4 className="text-white font-semibold text-lg mb-2">{prompt.title}</h4>
-                             <p className="text-slate-300 leading-relaxed mb-3">{prompt.prompts}</p>
-                             <div className="flex items-center gap-4 text-sm text-slate-400">
-                               <span className="flex items-center gap-1">
-                                 <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                                 {prompt.social === 'linkedin' ? 'LinkedIn' : 'Twitter'}
-                               </span>
-                               <span>{new Date(prompt.created_at).toLocaleDateString()}</span>
-                             </div>
+                         <div className="mb-3">
+                           <h4 className="text-white font-semibold text-lg mb-2">{prompt.title}</h4>
+                           <div className="flex items-center gap-4 text-sm text-slate-400 mb-3">
+                             <span className="flex items-center gap-1">
+                               <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                               {prompt.social === 'linkedin' ? 'LinkedIn' : 'Twitter'}
+                             </span>
+                             <span>{new Date(prompt.created_at).toLocaleDateString()}</span>
                            </div>
-                           <button
-                             onClick={() => handleDeletePrompt(prompt.id)}
-                             className="ml-3 px-3 py-1 bg-red-500/20 text-red-400 rounded-md text-sm hover:bg-red-500/30 transition-colors"
-                           >
-                             Delete
-                           </button>
+                           
+                           {/* Editable Prompt Text */}
+                           {editingPrompt && editingPrompt.id === prompt.id ? (
+                             <div className="space-y-3">
+                               <textarea
+                                 value={editedPromptText}
+                                 onChange={(e) => setEditedPromptText(e.target.value)}
+                                 rows={6}
+                                 className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                 placeholder="Edit your prompt template..."
+                               />
+                               <div className="flex gap-3">
+                                 <button
+                                   onClick={handleSaveEdit}
+                                   className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-green-500/50 transition-all duration-300"
+                                 >
+                                   Save
+                                 </button>
+                                 <button
+                                   onClick={handleCancelEdit}
+                                   className="px-4 py-2 bg-slate-700 text-slate-300 rounded-lg font-semibold hover:bg-slate-600 transition-colors"
+                                 >
+                                   Cancel
+                                 </button>
+                               </div>
+                             </div>
+                           ) : (
+                             <div className="space-y-3">
+                               <div 
+                                 className="text-slate-300 leading-relaxed p-4 bg-slate-700/50 rounded-lg cursor-pointer hover:bg-slate-700/70 transition-colors"
+                                 onClick={() => handleEditPrompt(prompt)}
+                               >
+                                 {prompt.prompts}
+                               </div>
+                               <button
+                                 onClick={() => handleEditPrompt(prompt)}
+                                 className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-md text-sm hover:bg-blue-500/30 transition-colors"
+                               >
+                                 Edit Prompt
+                               </button>
+                             </div>
+                           )}
                          </div>
                          
                          {/* Generate Content from Prompt */}
@@ -1485,7 +1582,7 @@ export default function Dashboard() {
                                className="flex-1 px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                              />
                              <button
-                               onClick={() => handleGenerateFromPrompt(prompt, promptTopic)}
+                               onClick={() => handleGenerateFromEditedPrompt(prompt, promptTopic)}
                                disabled={isGenerating}
                                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50"
                              >
