@@ -269,6 +269,7 @@ export default function Dashboard() {
         setPrompts(prev => [prompt, ...prev]);
         setNewPrompt('');
         setShowAddPrompt(false);
+        setSelectedPromptSocial('linkedin');
       }
     } catch (error) {
       console.error('Error adding prompt:', error);
@@ -1368,6 +1369,19 @@ export default function Dashboard() {
                      <form onSubmit={handleAddPrompt} className="space-y-4">
                        <div>
                          <label className="block text-sm font-semibold text-slate-300 mb-2">
+                           Platform
+                         </label>
+                         <select
+                           value={selectedPromptSocial}
+                           onChange={(e) => setSelectedPromptSocial(e.target.value as 'linkedin' | 'twitter')}
+                           className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                         >
+                           <option value="linkedin">LinkedIn</option>
+                           <option value="twitter">Twitter</option>
+                         </select>
+                       </div>
+                       <div>
+                         <label className="block text-sm font-semibold text-slate-300 mb-2">
                            Prompt Template
                          </label>
                          <textarea
@@ -1402,6 +1416,7 @@ export default function Dashboard() {
                            onClick={() => {
                              setShowAddPrompt(false);
                              setNewPrompt('');
+                             setSelectedPromptSocial('linkedin');
                            }}
                            className="px-4 py-2 bg-slate-700 text-slate-300 rounded-lg font-semibold hover:bg-slate-600 transition-colors"
                          >
