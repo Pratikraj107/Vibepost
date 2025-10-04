@@ -5,9 +5,9 @@ import { generateContent, GeneratedContent } from '../lib/openai';
 import { generateContentFromArticle } from '../lib/articleProcessor';
 import { generateContentFromYouTube } from '../lib/youtubeProcessor';
 import { fetchTrendingArticles, trendingCategories, TrendingArticle } from '../lib/perplexityService';
-import { getCurrentUser, signOut, onAuthStateChange, User } from '../lib/supabase';
+import { getCurrentUser, signOut, onAuthStateChange, User, getPrompts, addPrompt, deletePrompt, Prompt } from '../lib/supabase';
 
-type Tab = 'generator' | 'trending' | 'summarizer' | 'video';
+type Tab = 'generator' | 'trending' | 'summarizer' | 'video' | 'prompts';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('generator');
@@ -52,6 +52,16 @@ export default function Dashboard() {
   const [isLoadingTrending, setIsLoadingTrending] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [customTopic, setCustomTopic] = useState<string>('');
+  
+  // Prompt Library state
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [isLoadingPrompts, setIsLoadingPrompts] = useState(false);
+  const [selectedPromptSocial, setSelectedPromptSocial] = useState<'linkedin' | 'twitter'>('linkedin');
+  const [newPrompt, setNewPrompt] = useState('');
+  const [isAddingPrompt, setIsAddingPrompt] = useState(false);
+  const [showAddPrompt, setShowAddPrompt] = useState(false);
+  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
+  const [promptTopic, setPromptTopic] = useState('');
 
   // Authentication state management
   useEffect(() => {
@@ -106,6 +116,7 @@ export default function Dashboard() {
     { id: 'trending' as Tab, name: 'Trending', icon: TrendingUp },
     { id: 'summarizer' as Tab, name: 'AI Summarizer', icon: FileText },
     { id: 'video' as Tab, name: 'Video Summarizer', icon: Video },
+    { id: 'prompts' as Tab, name: 'Prompt Library', icon: Sparkles },
   ];
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -217,6 +228,100 @@ export default function Dashboard() {
       setIsLoadingTrending(false);
     }
   };
+
+  // Prompt Library functions
+  const loadPrompts = async (social: 'linkedin' | 'twitter') => {
+    setIsLoadingPrompts(true);
+    try {
+      const { prompts, error } = await getPrompts(social);
+      if (error) {
+        console.error('Error loading prompts:', error);
+        alert('Failed to load prompts. Please try again.');
+      } else {
+        setPrompts(prompts || []);
+      }
+    } catch (error) {
+      console.error('Error loading prompts:', error);
+      alert('Failed to load prompts. Please try again.');
+    } finally {
+      setIsLoadingPrompts(false);
+    }
+  };
+
+  const handleAddPrompt = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPrompt.trim()) return;
+
+    setIsAddingPrompt(true);
+    try {
+      const { prompt, error } = await addPrompt(newPrompt.trim(), selectedPromptSocial);
+      if (error) {
+        console.error('Error adding prompt:', error);
+        alert('Failed to add prompt. Please try again.');
+      } else {
+        setPrompts(prev => [prompt, ...prev]);
+        setNewPrompt('');
+        setShowAddPrompt(false);
+      }
+    } catch (error) {
+      console.error('Error adding prompt:', error);
+      alert('Failed to add prompt. Please try again.');
+    } finally {
+      setIsAddingPrompt(false);
+    }
+  };
+
+  const handleDeletePrompt = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this prompt?')) return;
+
+    try {
+      const { error } = await deletePrompt(id);
+      if (error) {
+        console.error('Error deleting prompt:', error);
+        alert('Failed to delete prompt. Please try again.');
+      } else {
+        setPrompts(prev => prev.filter(p => p.id !== id));
+      }
+    } catch (error) {
+      console.error('Error deleting prompt:', error);
+      alert('Failed to delete prompt. Please try again.');
+    }
+  };
+
+  const handleGenerateFromPrompt = async (prompt: Prompt, topic: string) => {
+    if (!topic.trim()) {
+      alert('Please enter a topic to generate content.');
+      return;
+    }
+
+    setIsGenerating(true);
+    setGeneratedContent(null);
+
+    try {
+      // Replace [TOPIC] placeholder in the prompt with the actual topic
+      const processedPrompt = prompt.prompts.replace(/\[TOPIC\]/g, topic.trim());
+      
+      const content = await generateContent({
+        topic: processedPrompt,
+        contentType: prompt.social === 'linkedin' ? 'linkedin' : 'tweet',
+        tone: 'engaging',
+        targetAudience: 'general'
+      });
+      setGeneratedContent(content);
+    } catch (error) {
+      console.error('Error generating content from prompt:', error);
+      alert('Failed to generate content. Please check your OpenAI API key and try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Load prompts when switching to prompt library tab
+  useEffect(() => {
+    if (activeTab === 'prompts') {
+      loadPrompts(selectedPromptSocial);
+    }
+  }, [activeTab, selectedPromptSocial]);
 
   return (
     <div className="min-h-screen bg-slate-950 flex">
@@ -1197,16 +1302,275 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                <div className="mt-8 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
-                  <p className="text-sm text-slate-300">
-                    <span className="text-blue-400 font-semibold">💡 Tip:</span> Works with any YouTube video. The AI will analyze the transcript and create compelling social media content highlighting key takeaways.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </main>
-      </div>
-    </div>
-  );
-}
+                 <div className="mt-8 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                   <p className="text-sm text-slate-300">
+                     <span className="text-blue-400 font-semibold">💡 Tip:</span> Works with any YouTube video. The AI will analyze the transcript and create compelling social media content highlighting key takeaways.
+                   </p>
+                 </div>
+               </div>
+             </div>
+           )}
+
+           {activeTab === 'prompts' && (
+             <div className="max-w-6xl mx-auto">
+               <div className="bg-slate-900 rounded-2xl border border-slate-800 p-8 shadow-xl">
+                 <div className="flex items-center gap-3 mb-6">
+                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                     <Sparkles className="w-6 h-6 text-white" />
+                   </div>
+                   <div>
+                     <h2 className="text-xl font-bold text-white">Prompt Library</h2>
+                     <p className="text-slate-400 text-sm">Create and manage your custom prompts</p>
+                   </div>
+                 </div>
+
+                 {/* Social Platform Toggle */}
+                 <div className="mb-6">
+                   <div className="flex items-center gap-4 mb-4">
+                     <button
+                       onClick={() => setSelectedPromptSocial('linkedin')}
+                       className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                         selectedPromptSocial === 'linkedin'
+                           ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
+                           : 'bg-slate-800 text-slate-400 hover:text-white'
+                       }`}
+                     >
+                       LinkedIn
+                     </button>
+                     <button
+                       onClick={() => setSelectedPromptSocial('twitter')}
+                       className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                         selectedPromptSocial === 'twitter'
+                           ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
+                           : 'bg-slate-800 text-slate-400 hover:text-white'
+                       }`}
+                     >
+                       Twitter
+                     </button>
+                   </div>
+                 </div>
+
+                 {/* Add Prompt Button */}
+                 <div className="mb-6">
+                   <button
+                     onClick={() => setShowAddPrompt(!showAddPrompt)}
+                     className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-green-500/50 transition-all duration-300"
+                   >
+                     <span>+</span>
+                     Add Prompt
+                   </button>
+                 </div>
+
+                 {/* Add Prompt Form */}
+                 {showAddPrompt && (
+                   <div className="mb-6 p-6 bg-slate-800/50 rounded-lg border border-slate-700">
+                     <h3 className="text-white font-semibold mb-4">Add New Prompt</h3>
+                     <form onSubmit={handleAddPrompt} className="space-y-4">
+                       <div>
+                         <label className="block text-sm font-semibold text-slate-300 mb-2">
+                           Prompt Template
+                         </label>
+                         <textarea
+                           value={newPrompt}
+                           onChange={(e) => setNewPrompt(e.target.value)}
+                           rows={4}
+                           placeholder="Enter your prompt template. Use [TOPIC] as a placeholder for the topic..."
+                           className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                           required
+                         />
+                         <p className="text-xs text-slate-400 mt-1">
+                           Use [TOPIC] as a placeholder for the topic
+                         </p>
+                       </div>
+                       <div className="flex gap-3">
+                         <button
+                           type="submit"
+                           disabled={isAddingPrompt}
+                           className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50"
+                         >
+                           {isAddingPrompt ? (
+                             <>
+                               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                               Adding...
+                             </>
+                           ) : (
+                             'Add Prompt'
+                           )}
+                         </button>
+                         <button
+                           type="button"
+                           onClick={() => {
+                             setShowAddPrompt(false);
+                             setNewPrompt('');
+                           }}
+                           className="px-4 py-2 bg-slate-700 text-slate-300 rounded-lg font-semibold hover:bg-slate-600 transition-colors"
+                         >
+                           Cancel
+                         </button>
+                       </div>
+                     </form>
+                   </div>
+                 )}
+
+                 {/* Prompts List */}
+                 {isLoadingPrompts ? (
+                   <div className="text-center py-12">
+                     <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+                     <p className="text-slate-400">Loading prompts...</p>
+                   </div>
+                 ) : prompts.length > 0 ? (
+                   <div className="space-y-4">
+                     {prompts.map((prompt) => (
+                       <div key={prompt.id} className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
+                         <div className="flex items-start justify-between mb-3">
+                           <div className="flex-1">
+                             <p className="text-slate-300 leading-relaxed mb-3">{prompt.prompts}</p>
+                             <div className="flex items-center gap-4 text-sm text-slate-400">
+                               <span className="flex items-center gap-1">
+                                 <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                 {prompt.social === 'linkedin' ? 'LinkedIn' : 'Twitter'}
+                               </span>
+                               <span>{new Date(prompt.created_at).toLocaleDateString()}</span>
+                             </div>
+                           </div>
+                           <button
+                             onClick={() => handleDeletePrompt(prompt.id)}
+                             className="ml-3 px-3 py-1 bg-red-500/20 text-red-400 rounded-md text-sm hover:bg-red-500/30 transition-colors"
+                           >
+                             Delete
+                           </button>
+                         </div>
+                         
+                         {/* Generate Content from Prompt */}
+                         <div className="mt-4 p-4 bg-slate-700/50 rounded-lg">
+                           <h4 className="text-white font-semibold mb-2">Generate Content</h4>
+                           <div className="flex gap-3">
+                             <input
+                               type="text"
+                               value={promptTopic}
+                               onChange={(e) => setPromptTopic(e.target.value)}
+                               placeholder="Enter topic to generate content..."
+                               className="flex-1 px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                             />
+                             <button
+                               onClick={() => handleGenerateFromPrompt(prompt, promptTopic)}
+                               disabled={isGenerating}
+                               className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 disabled:opacity-50"
+                             >
+                               {isGenerating ? (
+                                 <>
+                                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                   Generating...
+                                 </>
+                               ) : (
+                                 'Generate'
+                               )}
+                             </button>
+                           </div>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : (
+                   <div className="text-center py-12">
+                     <Sparkles className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                     <h3 className="text-xl font-semibold text-slate-400 mb-2">No prompts yet</h3>
+                     <p className="text-slate-500">Add your first prompt to get started</p>
+                   </div>
+                 )}
+
+                 {/* Generated Content Display */}
+                 {generatedContent && (
+                   <div className="mt-8 space-y-6">
+                     <div className="flex items-center gap-2 mb-4">
+                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                       <span className="text-green-400 font-semibold">Content Generated Successfully!</span>
+                     </div>
+
+                     {generatedContent.tweet && (
+                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
+                         <div className="flex items-center justify-between mb-3">
+                           <h3 className="text-white font-semibold flex items-center gap-2">
+                             <span className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold">T</span>
+                             Tweet
+                           </h3>
+                           <button
+                             onClick={() => copyToClipboard(generatedContent.tweet!, 'tweet')}
+                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
+                           >
+                             {copiedItem === 'tweet' ? (
+                               <>
+                                 <Check className="w-4 h-4" />
+                                 Copied!
+                               </>
+                             ) : (
+                               <>
+                                 <Copy className="w-4 h-4" />
+                                 Copy
+                               </>
+                             )}
+                           </button>
+                         </div>
+                         <p className="text-slate-300 leading-relaxed">{generatedContent.tweet}</p>
+                       </div>
+                     )}
+
+                     {generatedContent.linkedin && (
+                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
+                         <div className="flex items-center justify-between mb-3">
+                           <h3 className="text-white font-semibold flex items-center gap-2">
+                             <span className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold">L</span>
+                             LinkedIn Post
+                           </h3>
+                           <button
+                             onClick={() => copyToClipboard(generatedContent.linkedin!, 'linkedin')}
+                             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
+                           >
+                             {copiedItem === 'linkedin' ? (
+                               <>
+                                 <Check className="w-4 h-4" />
+                                 Copied!
+                               </>
+                             ) : (
+                               <>
+                                 <Copy className="w-4 h-4" />
+                                 Copy
+                               </>
+                             )}
+                           </button>
+                         </div>
+                         <p className="text-slate-300 leading-relaxed">{generatedContent.linkedin}</p>
+                       </div>
+                     )}
+
+                     {generatedContent.hashtags && generatedContent.hashtags.length > 0 && (
+                       <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
+                         <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
+                         <div className="flex flex-wrap gap-2">
+                           {generatedContent.hashtags.map((hashtag, index) => (
+                             <span
+                               key={index}
+                               className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-sm"
+                             >
+                               {hashtag}
+                             </span>
+                           ))}
+                         </div>
+                       </div>
+                     )}
+                   </div>
+                 )}
+
+                 <div className="mt-8 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                   <p className="text-sm text-slate-300">
+                     <span className="text-blue-400 font-semibold">💡 Tip:</span> Create reusable prompt templates with [TOPIC] placeholders. This allows you to quickly generate content for different topics using the same structure.
+                   </p>
+                 </div>
+               </div>
+             </div>
+           )}
+         </main>
+       </div>
+     </div>
+   );
+ }

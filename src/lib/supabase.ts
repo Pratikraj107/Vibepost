@@ -132,3 +132,39 @@ export function onAuthStateChange(callback: (user: User | null) => void) {
     }
   });
 }
+
+// Prompt management functions
+export interface Prompt {
+  id: number;
+  created_at: string;
+  prompts: string;
+  social: 'linkedin' | 'twitter';
+}
+
+export async function getPrompts(social: 'linkedin' | 'twitter') {
+  const { data, error } = await supabase
+    .from('Prompts')
+    .select('*')
+    .eq('social', social)
+    .order('created_at', { ascending: false });
+  
+  return { prompts: data, error };
+}
+
+export async function addPrompt(prompt: string, social: 'linkedin' | 'twitter') {
+  const { data, error } = await supabase
+    .from('Prompts')
+    .insert([{ prompts: prompt, social }])
+    .select();
+  
+  return { prompt: data?.[0], error };
+}
+
+export async function deletePrompt(id: number) {
+  const { error } = await supabase
+    .from('Prompts')
+    .delete()
+    .eq('id', id);
+  
+  return { error };
+}
