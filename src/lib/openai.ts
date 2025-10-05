@@ -241,3 +241,53 @@ export async function generateFromYouTube(videoUrl: string): Promise<GeneratedCo
   // For now, return a placeholder
   throw new Error('YouTube processing not yet implemented. Please use the topic-based generator.');
 }
+
+export async function humanizeContent(content: string, contentType: 'tweet' | 'linkedin' | 'twitter-thread'): Promise<string> {
+  const openai = getOpenAI();
+  
+  const systemPrompt = `You are an expert at making AI-generated content sound more human and natural. Your task is to rewrite the given content to make it sound like it was written by a real person, not an AI.
+
+HUMANIZATION GUIDELINES:
+- Use more conversational, natural language
+- Add personal touches and human emotions
+- Use contractions (I'm, you're, don't, etc.)
+- Make it sound like a real person sharing their thoughts
+- Remove overly formal or robotic language
+- Add personality and authenticity
+- Keep the core message but make it more relatable
+- Use more natural sentence structures
+- Add human-like expressions and reactions
+
+Make the content sound like it was written by a genuine, enthusiastic person who wants to share something valuable with their audience.`;
+
+  const userPrompt = `Rewrite this ${contentType} to make it sound more human and natural:
+
+${content}
+
+Make it sound like a real person wrote this, not an AI. Keep the same core message but make it more conversational and authentic.`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.7, // Higher temperature for more creative, human-like output
+      max_tokens: 1000,
+      top_p: 0.9,
+      frequency_penalty: 0.2,
+      presence_penalty: 0.2
+    });
+
+    const humanizedContent = completion.choices[0]?.message?.content;
+    if (!humanizedContent) {
+      throw new Error('No humanized content generated');
+    }
+
+    return humanizedContent.trim();
+  } catch (error) {
+    console.error('Error humanizing content:', error);
+    throw new Error('Failed to humanize content. Please try again.');
+  }
+}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, TrendingUp, FileText, Video, Send, Menu, X, LogOut, Link as LinkIcon, Copy, Check } from 'lucide-react';
 import { Link } from './Router';
-import { generateContent, GeneratedContent } from '../lib/openai';
+import { generateContent, GeneratedContent, humanizeContent } from '../lib/openai';
 import { generateContentFromArticle } from '../lib/articleProcessor';
 import { generateContentFromYouTube } from '../lib/youtubeProcessor';
 import { fetchTrendingArticles, trendingCategories, TrendingArticle } from '../lib/perplexityService';
@@ -66,6 +66,9 @@ export default function Dashboard() {
   const [editedPromptText, setEditedPromptText] = useState('');
   const [promptGeneratedContent, setPromptGeneratedContent] = useState<{[key: number]: GeneratedContent}>({});
   const [isGeneratingPrompt, setIsGeneratingPrompt] = useState<{[key: number]: boolean}>({});
+  
+  // Humanize content state
+  const [isHumanizing, setIsHumanizing] = useState<{[key: string]: boolean}>({});
 
   // Authentication state management
   useEffect(() => {
@@ -219,6 +222,62 @@ export default function Dashboard() {
       setTimeout(() => setCopiedItem(null), 2000);
     } catch (error) {
       console.error('Failed to copy:', error);
+    }
+  };
+
+  const handleHumanize = async (content: string, contentType: 'tweet' | 'linkedin' | 'twitter-thread', contentKey: string) => {
+    setIsHumanizing(prev => ({ ...prev, [contentKey]: true }));
+    
+    try {
+      const humanizedContent = await humanizeContent(content, contentType);
+      
+      // Update the appropriate content state based on the contentKey
+      if (contentKey.startsWith('generated-')) {
+        setGeneratedContent(prev => {
+          if (!prev) return null;
+          const updated = { ...prev };
+          if (contentType === 'tweet') updated.tweet = humanizedContent;
+          if (contentType === 'linkedin') updated.linkedin = humanizedContent;
+          if (contentType === 'twitter-thread') updated.twitterThread = [humanizedContent];
+          return updated;
+        });
+      } else if (contentKey.startsWith('article-')) {
+        setArticleGeneratedContent(prev => {
+          if (!prev) return null;
+          const updated = { ...prev };
+          if (contentType === 'tweet') updated.tweet = humanizedContent;
+          if (contentType === 'linkedin') updated.linkedin = humanizedContent;
+          if (contentType === 'twitter-thread') updated.twitterThread = [humanizedContent];
+          return updated;
+        });
+      } else if (contentKey.startsWith('video-')) {
+        setVideoGeneratedContent(prev => {
+          if (!prev) return null;
+          const updated = { ...prev };
+          if (contentType === 'tweet') updated.tweet = humanizedContent;
+          if (contentType === 'linkedin') updated.linkedin = humanizedContent;
+          if (contentType === 'twitter-thread') updated.twitterThread = [humanizedContent];
+          return updated;
+        });
+      } else if (contentKey.startsWith('prompt-')) {
+        const promptId = parseInt(contentKey.split('-')[1]);
+        setPromptGeneratedContent(prev => {
+          const updated = { ...prev };
+          if (updated[promptId]) {
+            const promptContent = { ...updated[promptId] };
+            if (contentType === 'tweet') promptContent.tweet = humanizedContent;
+            if (contentType === 'linkedin') promptContent.linkedin = humanizedContent;
+            if (contentType === 'twitter-thread') promptContent.twitterThread = [humanizedContent];
+            updated[promptId] = promptContent;
+          }
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error('Error humanizing content:', error);
+      alert('Failed to humanize content. Please try again.');
+    } finally {
+      setIsHumanizing(prev => ({ ...prev, [contentKey]: false }));
     }
   };
 
