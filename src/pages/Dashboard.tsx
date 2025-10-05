@@ -757,11 +757,11 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                       </div>
                     )}
 
-                    {generatedContent.hashtags && generatedContent.hashtags.length > 0 && (
+                    {videoGeneratedContent.hashtags && videoGeneratedContent.hashtags.length > 0 && (
                       <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
                         <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
                         <div className="flex flex-wrap gap-2">
-                          {generatedContent.hashtags.map((hashtag, index) => (
+                          {videoGeneratedContent.hashtags.map((hashtag, index) => (
                             <span
                               key={index}
                               className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-sm"
@@ -1145,11 +1145,11 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                       </div>
                     )}
 
-                    {generatedContent.hashtags && generatedContent.hashtags.length > 0 && (
+                    {videoGeneratedContent.hashtags && videoGeneratedContent.hashtags.length > 0 && (
                       <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
                         <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
                         <div className="flex flex-wrap gap-2">
-                          {generatedContent.hashtags.map((hashtag, index) => (
+                          {videoGeneratedContent.hashtags.map((hashtag, index) => (
                             <span
                               key={index}
                               className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-sm"
@@ -1390,11 +1390,11 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                       </div>
                     )}
 
-                    {generatedContent.hashtags && generatedContent.hashtags.length > 0 && (
+                    {videoGeneratedContent.hashtags && videoGeneratedContent.hashtags.length > 0 && (
                       <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
                         <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
                         <div className="flex flex-wrap gap-2">
-                          {generatedContent.hashtags.map((hashtag, index) => (
+                          {videoGeneratedContent.hashtags.map((hashtag, index) => (
                             <span
                               key={index}
                               className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-sm"
