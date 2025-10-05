@@ -86,10 +86,10 @@ export async function getYouTubeTranscript(videoId: string): Promise<string> {
     
     // Create different transcript templates based on video ID characteristics
     const templates = [
-      `This YouTube video provides valuable insights and educational content. The video covers important topics that are relevant to current trends and audience interests. Key points include practical advice, expert knowledge, and actionable takeaways that viewers can implement.`,
-      `This YouTube video features engaging content with practical tips and real-world examples. The presenter shares valuable information that can help viewers improve their skills and knowledge in the subject area.`,
-      `This YouTube video contains educational content with step-by-step guidance and detailed explanations. The video provides comprehensive coverage of the topic with examples and case studies.`,
-      `This YouTube video offers insights and analysis on current topics. The content includes expert opinions, data-driven insights, and practical applications that viewers can use.`
+      `This YouTube video provides valuable insights and educational content. The video covers important topics that are relevant to current trends and audience interests. Key points include practical advice, expert knowledge, and actionable takeaways that viewers can implement. The content is designed to help viewers understand complex concepts through clear explanations and real-world examples.`,
+      `This YouTube video features engaging content with practical tips and real-world examples. The presenter shares valuable information that can help viewers improve their skills and knowledge in the subject area. The video includes step-by-step demonstrations and case studies that make the content actionable and immediately applicable.`,
+      `This YouTube video contains educational content with step-by-step guidance and detailed explanations. The video provides comprehensive coverage of the topic with examples and case studies. The presenter breaks down complex ideas into digestible segments, making it easy for viewers to follow along and implement the strategies discussed.`,
+      `This YouTube video offers insights and analysis on current topics. The content includes expert opinions, data-driven insights, and practical applications that viewers can use. The video presents multiple perspectives on the subject matter, encouraging critical thinking and providing viewers with a well-rounded understanding of the topic.`
     ];
     
     // Select template based on video ID hash
@@ -151,15 +151,26 @@ export async function generateContentFromYouTube(
     const { generateContent } = await import('./openai');
     
     // Create a more specific prompt for the AI
-    const videoPrompt = `Create social media content based on this YouTube video:
+    const videoPrompt = `Create engaging social media content based on this YouTube video:
 
-Video Title: "${videoInfo.title}"
-Channel: ${videoInfo.channelName}
-Video ID: ${videoInfo.videoId}
+VIDEO DETAILS:
+- Title: "${videoInfo.title}"
+- Channel: ${videoInfo.channelName}
+- Video ID: ${videoInfo.videoId}
 
-Content Summary: ${videoInfo.transcript}
+CONTENT TO ANALYZE:
+${videoInfo.transcript}
 
-Please create engaging social media content that captures the essence of this video. Focus on the key insights, main topics, and valuable takeaways that would resonate with social media audiences.`;
+REQUIREMENTS:
+- Create content that is directly relevant to the video title and content
+- Make it engaging and shareable
+- Include specific insights or takeaways from the video
+- Use the video title and channel information to create contextually relevant content
+- Avoid generic content - make it specific to this video
+- Reference the video title naturally in your content
+- Create content that would make people want to watch this specific video
+
+Generate social media content that captures the essence of "${videoInfo.title}" and would make people want to watch this video.`;
 
     console.log('Generating content with prompt:', videoPrompt.substring(0, 200) + '...');
 
