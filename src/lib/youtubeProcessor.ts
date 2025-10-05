@@ -9,16 +9,31 @@ interface YouTubeVideoInfo {
 
 export function extractVideoId(url: string): string | null {
   try {
-    const urlObj = new URL(url);
+    console.log('Extracting video ID from URL:', url);
+    
+    // Add protocol if missing
+    let processedUrl = url.trim();
+    if (!processedUrl.startsWith('http://') && !processedUrl.startsWith('https://')) {
+      processedUrl = 'https://' + processedUrl;
+    }
+    
+    console.log('Processed URL:', processedUrl);
+    
+    const urlObj = new URL(processedUrl);
+    console.log('Parsed URL object:', { hostname: urlObj.hostname, searchParams: urlObj.searchParams });
     
     // Handle different YouTube URL formats
     if (urlObj.hostname.includes('youtube.com')) {
       const videoId = urlObj.searchParams.get('v');
+      console.log('Extracted video ID:', videoId);
       return videoId;
     } else if (urlObj.hostname.includes('youtu.be')) {
-      return urlObj.pathname.slice(1);
+      const videoId = urlObj.pathname.slice(1);
+      console.log('Extracted video ID from youtu.be:', videoId);
+      return videoId;
     }
     
+    console.log('No valid YouTube URL format found');
     return null;
   } catch (error) {
     console.error('Error extracting video ID:', error);
