@@ -1205,24 +1205,43 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                             <span className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold">T</span>
                             Tweet
                           </h3>
-                          <button
-                            onClick={() => copyToClipboard(videoGeneratedContent.tweet!, 'tweet')}
-                            className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
-                          >
-                            {copiedItem === 'tweet' ? (
-                              <>
-                                <Check className="w-4 h-4" />
-                                Copied!
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-4 h-4" />
-                                Copy
-                              </>
-                            )}
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleHumanize(articleGeneratedContent.tweet!, 'tweet', 'article-tweet')}
+                              disabled={isHumanizing['article-tweet']}
+                              className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 rounded-md text-sm text-white transition-colors disabled:opacity-50"
+                            >
+                              {isHumanizing['article-tweet'] ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  Humanizing...
+                                </>
+                              ) : (
+                                <>
+                                  <UserIcon className="w-4 h-4" />
+                                  Humanize
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => copyToClipboard(articleGeneratedContent.tweet!, 'tweet')}
+                              className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
+                            >
+                              {copiedItem === 'tweet' ? (
+                                <>
+                                  <Check className="w-4 h-4" />
+                                  Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-4 h-4" />
+                                  Copy
+                                </>
+                              )}
+                            </button>
+                          </div>
                         </div>
-                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent.tweet}</p>
+                        <p className="text-slate-300 leading-relaxed">{articleGeneratedContent.tweet}</p>
                       </div>
                     )}
 
@@ -1896,22 +1915,41 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                                        <span className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold">T</span>
                                        Tweet
                                      </h3>
-                                     <button
-                                       onClick={() => copyToClipboard(promptGeneratedContent[prompt.id].tweet!, 'tweet')}
-                                       className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
-                                     >
-                                       {copiedItem === 'tweet' ? (
-                                         <>
-                                           <Check className="w-4 h-4" />
-                                           Copied!
-                                         </>
-                                       ) : (
-                                         <>
-                                           <Copy className="w-4 h-4" />
-                                           Copy
-                                         </>
-                                       )}
-                                     </button>
+                                     <div className="flex items-center gap-2">
+                                       <button
+                                         onClick={() => handleHumanize(promptGeneratedContent[prompt.id].tweet!, 'tweet', `prompt-${prompt.id}-tweet`)}
+                                         disabled={isHumanizing[`prompt-${prompt.id}-tweet`]}
+                                         className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 rounded-md text-sm text-white transition-colors disabled:opacity-50"
+                                       >
+                                         {isHumanizing[`prompt-${prompt.id}-tweet`] ? (
+                                           <>
+                                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                             Humanizing...
+                                           </>
+                                         ) : (
+                                           <>
+                                             <UserIcon className="w-4 h-4" />
+                                             Humanize
+                                           </>
+                                         )}
+                                       </button>
+                                       <button
+                                         onClick={() => copyToClipboard(promptGeneratedContent[prompt.id].tweet!, 'tweet')}
+                                         className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
+                                       >
+                                         {copiedItem === 'tweet' ? (
+                                           <>
+                                             <Check className="w-4 h-4" />
+                                             Copied!
+                                           </>
+                                         ) : (
+                                           <>
+                                             <Copy className="w-4 h-4" />
+                                             Copy
+                                           </>
+                                         )}
+                                       </button>
+                                     </div>
                                    </div>
                                    <p className="text-slate-300 leading-relaxed">{promptGeneratedContent[prompt.id].tweet}</p>
                                  </div>
@@ -1924,22 +1962,41 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                                        <span className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold">L</span>
                                        LinkedIn Post
                                      </h3>
-                                     <button
-                                       onClick={() => copyToClipboard(promptGeneratedContent[prompt.id].linkedin!, 'linkedin')}
-                                       className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
-                                     >
-                                       {copiedItem === 'linkedin' ? (
-                                         <>
-                                           <Check className="w-4 h-4" />
-                                           Copied!
-                                         </>
-                                       ) : (
-                                         <>
-                                           <Copy className="w-4 h-4" />
-                                           Copy
-                                         </>
-                                       )}
-                                     </button>
+                                     <div className="flex items-center gap-2">
+                                       <button
+                                         onClick={() => handleHumanize(promptGeneratedContent[prompt.id].linkedin!, 'linkedin', `prompt-${prompt.id}-linkedin`)}
+                                         disabled={isHumanizing[`prompt-${prompt.id}-linkedin`]}
+                                         className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 rounded-md text-sm text-white transition-colors disabled:opacity-50"
+                                       >
+                                         {isHumanizing[`prompt-${prompt.id}-linkedin`] ? (
+                                           <>
+                                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                             Humanizing...
+                                           </>
+                                         ) : (
+                                           <>
+                                             <UserIcon className="w-4 h-4" />
+                                             Humanize
+                                           </>
+                                         )}
+                                       </button>
+                                       <button
+                                         onClick={() => copyToClipboard(promptGeneratedContent[prompt.id].linkedin!, 'linkedin')}
+                                         className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
+                                       >
+                                         {copiedItem === 'linkedin' ? (
+                                           <>
+                                             <Check className="w-4 h-4" />
+                                             Copied!
+                                           </>
+                                         ) : (
+                                           <>
+                                             <Copy className="w-4 h-4" />
+                                             Copy
+                                           </>
+                                         )}
+                                       </button>
+                                     </div>
                                    </div>
                                    <p className="text-slate-300 leading-relaxed">{promptGeneratedContent[prompt.id].linkedin}</p>
                                  </div>
