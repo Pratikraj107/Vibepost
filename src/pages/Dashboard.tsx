@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, TrendingUp, FileText, Video, Send, Menu, X, LogOut, Link as LinkIcon, Copy, Check } from 'lucide-react';
+import { Sparkles, TrendingUp, FileText, Video, Send, Menu, X, LogOut, Link as LinkIcon, Copy, Check, User } from 'lucide-react';
 import { Link } from './Router';
 import { generateContent, GeneratedContent, humanizeContent } from '../lib/openai';
 import { generateContentFromArticle } from '../lib/articleProcessor';
@@ -280,6 +280,45 @@ export default function Dashboard() {
       setIsHumanizing(prev => ({ ...prev, [contentKey]: false }));
     }
   };
+
+  // Helper function to render content with humanize and copy buttons
+  const renderContentWithButtons = (content: string, contentType: 'tweet' | 'linkedin' | 'twitter-thread', contentKey: string, copyType: string) => (
+    <div className="flex items-center gap-2">
+      <button
+        onClick={() => handleHumanize(content, contentType, contentKey)}
+        disabled={isHumanizing[contentKey]}
+        className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 rounded-md text-sm text-white transition-colors disabled:opacity-50"
+      >
+        {isHumanizing[contentKey] ? (
+          <>
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            Humanizing...
+          </>
+        ) : (
+          <>
+            <User className="w-4 h-4" />
+            Humanize
+          </>
+        )}
+      </button>
+      <button
+        onClick={() => copyToClipboard(content, copyType)}
+        className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
+      >
+        {copiedItem === copyType ? (
+          <>
+            <Check className="w-4 h-4" />
+            Copied!
+          </>
+        ) : (
+          <>
+            <Copy className="w-4 h-4" />
+            Copy
+          </>
+        )}
+      </button>
+    </div>
+  );
 
   const handleFetchTrending = async () => {
     const topic = customTopic.trim() || selectedCategory;
