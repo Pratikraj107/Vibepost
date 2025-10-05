@@ -1393,22 +1393,41 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                             <span className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold">T</span>
                             Tweet
                           </h3>
-                          <button
-                            onClick={() => copyToClipboard(videoGeneratedContent.tweet!, 'tweet')}
-                            className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
-                          >
-                            {copiedItem === 'tweet' ? (
-                              <>
-                                <Check className="w-4 h-4" />
-                                Copied!
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-4 h-4" />
-                                Copy
-                              </>
-                            )}
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleHumanize(videoGeneratedContent.tweet!, 'tweet', 'video-tweet')}
+                              disabled={isHumanizing['video-tweet']}
+                              className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 rounded-md text-sm text-white transition-colors disabled:opacity-50"
+                            >
+                              {isHumanizing['video-tweet'] ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  Humanizing...
+                                </>
+                              ) : (
+                                <>
+                                  <UserIcon className="w-4 h-4" />
+                                  Humanize
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => copyToClipboard(videoGeneratedContent.tweet!, 'tweet')}
+                              className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
+                            >
+                              {copiedItem === 'tweet' ? (
+                                <>
+                                  <Check className="w-4 h-4" />
+                                  Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-4 h-4" />
+                                  Copy
+                                </>
+                              )}
+                            </button>
+                          </div>
                         </div>
                         <p className="text-slate-300 leading-relaxed">{videoGeneratedContent.tweet}</p>
                       </div>
