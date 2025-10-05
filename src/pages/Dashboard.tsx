@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, TrendingUp, FileText, Video, Send, Menu, X, LogOut, Link as LinkIcon, Copy, Check, User } from 'lucide-react';
+import { Sparkles, TrendingUp, FileText, Video, Send, Menu, X, LogOut, Link as LinkIcon, Copy, Check, User as UserIcon } from 'lucide-react';
 import { Link } from './Router';
 import { generateContent, GeneratedContent, humanizeContent } from '../lib/openai';
 import { generateContentFromArticle } from '../lib/articleProcessor';
@@ -296,7 +296,7 @@ export default function Dashboard() {
           </>
         ) : (
           <>
-            <User className="w-4 h-4" />
+            <UserIcon className="w-4 h-4" />
             Humanize
           </>
         )}
