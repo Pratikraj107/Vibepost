@@ -88,10 +88,18 @@ Always ensure your content meets these character minimums while following the us
     }
   };
 
-  const userPrompt = `${request.topic}
+  const formatInstructions = request.contentType === 'both' 
+    ? '\n\nIMPORTANT: Generate BOTH a tweet and a LinkedIn post. Format your response as follows:\nTweet: [your tweet content here]\nLinkedIn: [your LinkedIn post content here]'
+    : request.contentType === 'twitter-thread'
+    ? '\n\nIMPORTANT: Generate a Twitter thread with 3-7 connected tweets. Number each tweet (e.g., 1/7, 2/7, etc.).'
+    : '';
+
+  const userPrompt = `Generate ${getContentTypeDescription(request.contentType)} based on this topic:
+
+${request.topic}
 
 ${request.tone ? `Tone: ${request.tone}` : ''}
-${request.targetAudience ? `Target audience: ${request.targetAudience}` : ''}${webSearchResults ? `
+${request.targetAudience ? `Target audience: ${request.targetAudience}` : ''}${formatInstructions}${webSearchResults ? `
 
 Latest information from web search:
 ${webSearchResults}` : ''}`;

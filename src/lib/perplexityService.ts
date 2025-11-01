@@ -1,4 +1,4 @@
-interface TrendingArticle {
+export interface TrendingArticle {
   title: string;
   summary: string;
   url: string;

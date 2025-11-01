@@ -800,7 +800,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                       </div>
                     )}
 
-                    {videoGeneratedContent.linkedin && (
+                    {generatedContent?.linkedin && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
@@ -809,11 +809,11 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                           </h3>
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => handleHumanize(videoGeneratedContent.linkedin!, 'linkedin', 'video-linkedin')}
-                              disabled={isHumanizing['video-linkedin']}
+                              onClick={() => generatedContent?.linkedin && handleHumanize(generatedContent.linkedin, 'linkedin', 'generated-linkedin')}
+                              disabled={isHumanizing['generated-linkedin']}
                               className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 rounded-md text-sm text-white transition-colors disabled:opacity-50"
                             >
-                              {isHumanizing['video-linkedin'] ? (
+                              {isHumanizing['generated-linkedin'] ? (
                                 <>
                                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                   Humanizing...
@@ -826,7 +826,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                               )}
                             </button>
                             <button
-                              onClick={() => copyToClipboard(videoGeneratedContent.linkedin!, 'linkedin')}
+                              onClick={() => generatedContent?.linkedin && copyToClipboard(generatedContent.linkedin, 'linkedin')}
                               className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                             >
                               {copiedItem === 'linkedin' ? (
@@ -843,24 +843,24 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                             </button>
                           </div>
                         </div>
-                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent.linkedin}</p>
+                        <p className="text-slate-300 leading-relaxed">{generatedContent.linkedin}</p>
                       </div>
                     )}
 
-                    {videoGeneratedContent.twitterThread && videoGeneratedContent.twitterThread.length > 0 && (
+                    {generatedContent && generatedContent.twitterThread && generatedContent.twitterThread.length > 0 && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
                             <span className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-xs font-bold">🧵</span>
-                            Twitter Thread ({videoGeneratedContent.twitterThread.length} tweets)
+                            Twitter Thread ({generatedContent.twitterThread.length} tweets)
                           </h3>
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => handleHumanize(videoGeneratedContent.twitterThread!.join('\n\n'), 'twitter-thread', 'video-thread')}
-                              disabled={isHumanizing['video-thread']}
+                              onClick={() => handleHumanize(generatedContent.twitterThread!.join('\n\n'), 'twitter-thread', 'generated-thread')}
+                              disabled={isHumanizing['generated-thread']}
                               className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 rounded-md text-sm text-white transition-colors disabled:opacity-50"
                             >
-                              {isHumanizing['video-thread'] ? (
+                              {isHumanizing['generated-thread'] ? (
                                 <>
                                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                   Humanizing...
@@ -873,7 +873,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                               )}
                             </button>
                             <button
-                              onClick={() => copyToClipboard(videoGeneratedContent.twitterThread!.join('\n\n'), 'thread')}
+                              onClick={() => copyToClipboard(generatedContent.twitterThread!.join('\n\n'), 'thread')}
                               className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                             >
                               {copiedItem === 'thread' ? (
@@ -891,7 +891,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                           </div>
                         </div>
                         <div className="space-y-3">
-                          {videoGeneratedContent.twitterThread.map((tweet, index) => (
+                          {generatedContent.twitterThread.map((tweet, index) => (
                             <div key={index} className="bg-slate-700/50 rounded-lg p-3 border border-slate-600/50">
                               <div className="flex items-start justify-between">
                                 <p className="text-slate-300 leading-relaxed flex-1">{tweet}</p>
@@ -912,7 +912,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                       </div>
                     )}
 
-                    {videoGeneratedContent.hashtags && videoGeneratedContent.hashtags.length > 0 && (
+                    {videoGeneratedContent?.hashtags && videoGeneratedContent.hashtags.length > 0 && (
                       <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
                         <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
                         <div className="flex flex-wrap gap-2">
@@ -1245,7 +1245,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                       </div>
                     )}
 
-                    {videoGeneratedContent.linkedin && (
+                    {videoGeneratedContent?.linkedin && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
@@ -1254,7 +1254,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                           </h3>
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => handleHumanize(videoGeneratedContent.linkedin!, 'linkedin', 'video-linkedin')}
+                              onClick={() => videoGeneratedContent?.linkedin && handleHumanize(videoGeneratedContent.linkedin, 'linkedin', 'video-linkedin')}
                               disabled={isHumanizing['video-linkedin']}
                               className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 rounded-md text-sm text-white transition-colors disabled:opacity-50"
                             >
@@ -1271,7 +1271,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                               )}
                             </button>
                             <button
-                              onClick={() => copyToClipboard(videoGeneratedContent.linkedin!, 'linkedin')}
+                              onClick={() => videoGeneratedContent?.linkedin && copyToClipboard(videoGeneratedContent.linkedin, 'linkedin')}
                               className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                             >
                               {copiedItem === 'linkedin' ? (
@@ -1288,11 +1288,11 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                             </button>
                           </div>
                         </div>
-                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent.linkedin}</p>
+                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent?.linkedin}</p>
                       </div>
                     )}
 
-                    {videoGeneratedContent.twitterThread && videoGeneratedContent.twitterThread.length > 0 && (
+                    {videoGeneratedContent && videoGeneratedContent.twitterThread && videoGeneratedContent.twitterThread.length > 0 && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
@@ -1357,7 +1357,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                       </div>
                     )}
 
-                    {videoGeneratedContent.hashtags && videoGeneratedContent.hashtags.length > 0 && (
+                    {videoGeneratedContent?.hashtags && videoGeneratedContent.hashtags.length > 0 && (
                       <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
                         <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
                         <div className="flex flex-wrap gap-2">
@@ -1547,7 +1547,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                       </div>
                     )}
 
-                    {videoGeneratedContent.linkedin && (
+                    {videoGeneratedContent?.linkedin && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
@@ -1556,7 +1556,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                           </h3>
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => handleHumanize(videoGeneratedContent.linkedin!, 'linkedin', 'video-linkedin')}
+                              onClick={() => videoGeneratedContent?.linkedin && handleHumanize(videoGeneratedContent.linkedin, 'linkedin', 'video-linkedin')}
                               disabled={isHumanizing['video-linkedin']}
                               className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 rounded-md text-sm text-white transition-colors disabled:opacity-50"
                             >
@@ -1573,7 +1573,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                               )}
                             </button>
                             <button
-                              onClick={() => copyToClipboard(videoGeneratedContent.linkedin!, 'linkedin')}
+                              onClick={() => videoGeneratedContent?.linkedin && copyToClipboard(videoGeneratedContent.linkedin, 'linkedin')}
                               className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-md text-sm text-slate-300 hover:text-white transition-colors"
                             >
                               {copiedItem === 'linkedin' ? (
@@ -1590,11 +1590,11 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                             </button>
                           </div>
                         </div>
-                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent.linkedin}</p>
+                        <p className="text-slate-300 leading-relaxed">{videoGeneratedContent?.linkedin}</p>
                       </div>
                     )}
 
-                    {videoGeneratedContent.twitterThread && videoGeneratedContent.twitterThread.length > 0 && (
+                    {videoGeneratedContent && videoGeneratedContent.twitterThread && videoGeneratedContent.twitterThread.length > 0 && (
                       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-semibold flex items-center gap-2">
@@ -1659,7 +1659,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                       </div>
                     )}
 
-                    {videoGeneratedContent.hashtags && videoGeneratedContent.hashtags.length > 0 && (
+                    {videoGeneratedContent?.hashtags && videoGeneratedContent.hashtags.length > 0 && (
                       <div className="bg-slate-800/30 rounded-lg border border-slate-700 p-4">
                         <h3 className="text-white font-semibold mb-2">Suggested Hashtags</h3>
                         <div className="flex flex-wrap gap-2">
