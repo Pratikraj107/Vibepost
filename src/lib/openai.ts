@@ -43,12 +43,25 @@ export async function generateContent(request: ContentGenerationRequest): Promis
   let webSearchResults = '';
   if (request.webSearch !== false) {
     try {
-      console.log('Searching web for latest information about:', request.topic);
+      console.log('🔍 Searching web for latest information about:', request.topic);
       const searchResults = await searchWeb(request.topic, 5); // Increased to 5 results for better context
+      
+      // Check if mock results were used
+      const isUsingMockResults = searchResults.results.some(result => 
+        result.link.includes('example.com')
+      );
+      
+      if (isUsingMockResults) {
+        console.warn('⚠️ WARNING: Using mock/placeholder search results. Please configure Google Custom Search API keys for real search results.');
+        console.warn('   Set VITE_GOOGLE_SEARCH_API_KEY and VITE_GOOGLE_SEARCH_ENGINE_ID in your environment variables.');
+      } else {
+        console.log('✅ Real web search results obtained:', searchResults.totalResults, 'results');
+      }
+      
       webSearchResults = formatSearchResultsForAI(searchResults);
-      console.log('Web search completed, found', searchResults.totalResults, 'results');
+      console.log('📊 Web search formatted and ready for AI');
     } catch (error) {
-      console.warn('Web search failed, continuing without latest information:', error);
+      console.warn('❌ Web search failed, continuing without latest information:', error);
     }
   }
   
@@ -77,14 +90,23 @@ CRITICAL LENGTH REQUIREMENTS:
 - Twitter threads: Each tweet in the thread should be at least 200 characters
 - These are MINIMUM requirements - you can exceed these lengths
 
-WEB SEARCH INFORMATION:
-- If the user provides web search results, you MUST use this information as the primary source for your content
-- Base your content on the latest information found in the web search results
-- Make the content current, accurate, and relevant based on the search findings
-- Incorporate specific facts, statistics, or insights from the search results
-- Ensure your content reflects the most up-to-date information available
+ACCURACY AND FACT-CHECKING (CRITICAL):
+- ALWAYS use REAL, ACCURATE information from web search results when provided
+- NEVER use placeholder URLs like "example.com" or made-up URLs
+- ONLY include URLs that are REAL and from the search results
+- Use SPECIFIC facts, details, features, dates, and information from search results
+- If search results mention specific product features, pricing, release dates, etc., USE THEM
+- DO NOT make up generic information - use the ACTUAL details from the search results
+- If you don't have real information, use your knowledge base but indicate if information is from your training data
 
-Always ensure your content meets these character minimums while following the user's specific instructions and using the latest information from web searches when provided.`;
+WEB SEARCH INFORMATION PRIORITY:
+- Web search results are your PRIMARY source of truth when provided
+- Extract and use SPECIFIC details: product names, features, pricing, dates, company names, URLs
+- Incorporate exact facts and statistics from the search results
+- Reference real URLs, official sources, and accurate information only
+- If search results contain warnings about placeholder data, use your knowledge base instead
+
+Always ensure your content meets these character minimums while following the user's specific instructions and using ACCURATE, REAL information from web searches when provided.`;
 
   const getContentTypeDescription = (type: string) => {
     switch (type) {
@@ -103,7 +125,17 @@ Always ensure your content meets these character minimums while following the us
     : '';
 
   const webSearchInstruction = webSearchResults 
-    ? `\n\nCRITICAL: I have searched the internet and found the latest information about this topic. You MUST use this information to create accurate, current, and relevant content. Base your content on these findings:\n${webSearchResults}`
+    ? `\n\n🔍 CRITICAL WEB SEARCH DATA: I have searched the internet and found the latest information about this topic. 
+
+MANDATORY REQUIREMENTS:
+1. Use the SPECIFIC facts, details, and information from the search results below
+2. If URLs are provided in search results, use ONLY those REAL URLs - NEVER use placeholder URLs like example.com
+3. Include exact product names, features, pricing, dates, or other specific details mentioned in the search results
+4. Make your content accurate and factual based on the search results
+5. If search results contain warnings about placeholder data, rely on your knowledge base for accurate information
+
+Search Results:
+${webSearchResults}`
     : '';
 
   const userPrompt = `Generate ${getContentTypeDescription(request.contentType)} based on this topic:

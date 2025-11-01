@@ -125,20 +125,36 @@ export function formatSearchResultsForAI(searchResults: WebSearchResponse): stri
     return '';
   }
   
-  let formattedResults = `\n\nLatest information from web search:\n`;
-  formattedResults += `Search Query: ${searchResults.searchQuery}\n`;
+  // Check if these are mock results (from example.com)
+  const isMockResults = searchResults.results.some(result => 
+    result.link.includes('example.com')
+  );
+  
+  let formattedResults = `\n\n=== LATEST INFORMATION FROM WEB SEARCH ===\n`;
+  formattedResults += `Search Query: "${searchResults.searchQuery}"\n`;
   formattedResults += `Found ${searchResults.totalResults} relevant results:\n\n`;
   
   searchResults.results.forEach((result, index) => {
-    formattedResults += `${index + 1}. ${result.title}\n`;
-    formattedResults += `   ${result.snippet}\n`;
+    formattedResults += `[RESULT ${index + 1}]\n`;
+    formattedResults += `Title: ${result.title}\n`;
+    formattedResults += `Key Information: ${result.snippet}\n`;
     if (result.date) {
-      formattedResults += `   Date: ${new Date(result.date).toLocaleDateString()}\n`;
+      formattedResults += `Date: ${new Date(result.date).toLocaleDateString()}\n`;
     }
-    formattedResults += `   Source: ${result.link}\n\n`;
+    formattedResults += `Official Source URL: ${result.link}\n\n`;
   });
   
-  formattedResults += `\nUse this latest information to create current, relevant, and up-to-date content.`;
+  if (isMockResults) {
+    formattedResults += `\n⚠️ WARNING: These appear to be placeholder/mock results. Use your knowledge base to provide accurate, real information about the topic.\n`;
+    formattedResults += `DO NOT use placeholder URLs like example.com. If you include URLs, they must be real, official sources.\n`;
+  } else {
+    formattedResults += `\n✅ CRITICAL INSTRUCTIONS:\n`;
+    formattedResults += `- Use the SPECIFIC facts, details, and information from the search results above\n`;
+    formattedResults += `- If including URLs, use the REAL URLs from the search results, NOT placeholder URLs\n`;
+    formattedResults += `- Include specific details like product features, release dates, pricing, or key facts from the results\n`;
+    formattedResults += `- Make your content accurate and based on the real information found\n`;
+    formattedResults += `- DO NOT make up URLs, use the actual URLs from the search results above\n`;
+  }
   
   return formattedResults;
 }
