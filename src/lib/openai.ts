@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { searchWeb, shouldSearchWeb, formatSearchResultsForAI } from './webSearch';
+import { searchWeb, formatSearchResultsForAI } from './webSearch';
 
 let openaiInstance: OpenAI | null = null;
 
@@ -38,12 +38,13 @@ export interface GeneratedContent {
 export async function generateContent(request: ContentGenerationRequest): Promise<GeneratedContent> {
   const openai = getOpenAI();
   
-  // Check if web search is needed for this topic
+  // Always perform web search to get latest information about the topic
+  // unless explicitly disabled
   let webSearchResults = '';
-  if (request.webSearch !== false && shouldSearchWeb(request.topic)) {
+  if (request.webSearch !== false) {
     try {
-      console.log('Searching web for latest information...');
-      const searchResults = await searchWeb(request.topic, 3);
+      console.log('Searching web for latest information about:', request.topic);
+      const searchResults = await searchWeb(request.topic, 5); // Increased to 5 results for better context
       webSearchResults = formatSearchResultsForAI(searchResults);
       console.log('Web search completed, found', searchResults.totalResults, 'results');
     } catch (error) {
@@ -76,7 +77,14 @@ CRITICAL LENGTH REQUIREMENTS:
 - Twitter threads: Each tweet in the thread should be at least 200 characters
 - These are MINIMUM requirements - you can exceed these lengths
 
-Always ensure your content meets these character minimums while following the user's specific instructions.`;
+WEB SEARCH INFORMATION:
+- If the user provides web search results, you MUST use this information as the primary source for your content
+- Base your content on the latest information found in the web search results
+- Make the content current, accurate, and relevant based on the search findings
+- Incorporate specific facts, statistics, or insights from the search results
+- Ensure your content reflects the most up-to-date information available
+
+Always ensure your content meets these character minimums while following the user's specific instructions and using the latest information from web searches when provided.`;
 
   const getContentTypeDescription = (type: string) => {
     switch (type) {
@@ -94,15 +102,16 @@ Always ensure your content meets these character minimums while following the us
     ? '\n\nIMPORTANT: Generate a Twitter thread with 3-7 connected tweets. Number each tweet (e.g., 1/7, 2/7, etc.).'
     : '';
 
+  const webSearchInstruction = webSearchResults 
+    ? `\n\nCRITICAL: I have searched the internet and found the latest information about this topic. You MUST use this information to create accurate, current, and relevant content. Base your content on these findings:\n${webSearchResults}`
+    : '';
+
   const userPrompt = `Generate ${getContentTypeDescription(request.contentType)} based on this topic:
 
 ${request.topic}
 
 ${request.tone ? `Tone: ${request.tone}` : ''}
-${request.targetAudience ? `Target audience: ${request.targetAudience}` : ''}${formatInstructions}${webSearchResults ? `
-
-Latest information from web search:
-${webSearchResults}` : ''}`;
+${request.targetAudience ? `Target audience: ${request.targetAudience}` : ''}${formatInstructions}${webSearchInstruction}`;
 
   try {
     const completion = await openai.chat.completions.create({
