@@ -94,6 +94,56 @@ Your app will be available at `http://localhost:5173`
 - Check that your `.env` file is in the root directory
 - Make sure all environment variables are properly set
 
+## Deployment to Hostinger
+
+### 1. Build the Project
+```bash
+npm run build
+```
+This creates a `dist` folder with all the production files.
+
+### 2. Upload to Hostinger
+1. Connect to your Hostinger hosting via FTP or File Manager
+2. Navigate to your domain's `public_html` folder
+3. Upload **all contents** from the `dist` folder to `public_html`
+4. **IMPORTANT**: Ensure the `.htaccess` file from the `dist` folder is uploaded (it should be there automatically)
+
+### 3. Verify .htaccess File
+The `.htaccess` file is crucial for fixing 404 errors when refreshing pages. Make sure:
+- The `.htaccess` file exists in your `public_html` folder
+- It contains the rewrite rules for React Router
+- Your Hostinger account has `mod_rewrite` enabled (usually enabled by default)
+
+### 4. Set Environment Variables (BEFORE Building)
+**IMPORTANT**: Vite bakes environment variables into the build at build time. You must set them in your `.env` file **before running `npm run build`**.
+
+1. In your local project, create/update the `.env` file in the root directory
+2. Add all your environment variables:
+   ```
+   VITE_OPENAI_API_KEY=your_key
+   VITE_SUPABASE_URL=your_url
+   VITE_SUPABASE_ANON_KEY=your_key
+   VITE_PERPLEXITY_API_KEY=your_key
+   VITE_GOOGLE_SEARCH_API_KEY=your_key
+   VITE_GOOGLE_SEARCH_ENGINE_ID=your_id
+   ```
+3. Then run `npm run build` - the variables will be embedded in the build
+
+### 5. Fix 404 on Page Refresh
+If you're getting 404 errors when refreshing pages:
+1. Check that `.htaccess` file exists in `public_html`
+2. Verify it contains the rewrite rules (see `.htaccess` in project root)
+3. Contact Hostinger support if `mod_rewrite` is not enabled
+
+### Build and Deploy Script
+```bash
+# Build for production
+npm run build
+
+# The dist folder contains everything you need to upload
+# Upload all files from dist/ to your public_html/ folder
+```
+
 ## Next Steps
 
 1. Test the AI content generation

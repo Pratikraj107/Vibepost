@@ -45,7 +45,7 @@ export default function Login() {
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
               <span className="text-white font-bold text-xl">AI</span>
             </div>
-            <span className="text-2xl font-bold text-white">ContentGen</span>
+            <span className="text-2xl font-bold text-white">VibePost</span>
           </Link>
 
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
