@@ -1,4 +1,4 @@
-import { Clock, TrendingUp, Zap, Target, Users, Shield, Rocket } from 'lucide-react';
+import { Clock, TrendingUp, Zap, Target, Users, Shield, Rocket, MessageCircle } from 'lucide-react';
 
 export default function Benefits() {
   const benefits = [
@@ -6,6 +6,11 @@ export default function Benefits() {
       icon: Rocket,
       title: 'Complete GTM Strategy',
       description: 'LaunchPilot generates your entire Go-To-Market plan: positioning, channels, content calendar, outreach, and KPIs. Launch like a pro, even solo.'
+    },
+    {
+      icon: MessageCircle,
+      title: 'Join Vibe Club Community',
+      description: 'Connect with fellow founders and solopreneurs in Vibe Club. Share experiences, get support, network, and learn from successful entrepreneurs on Discord.'
     },
     {
       icon: Clock,
