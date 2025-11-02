@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, TrendingUp, FileText, Video, Send, Menu, X, LogOut, Link as LinkIcon, Copy, Check, User as UserIcon, Rocket } from 'lucide-react';
+import { Sparkles, TrendingUp, FileText, Video, Send, Menu, X, LogOut, Link as LinkIcon, Copy, Check, User as UserIcon, Rocket, Users, ArrowRight } from 'lucide-react';
 import { Link } from './Router';
 import { generateContent, GeneratedContent, humanizeContent, generateGTMPlan, GTMPlan, GTMPlanRequest } from '../lib/openai';
 import { generateContentFromArticle } from '../lib/articleProcessor';
@@ -7,7 +7,7 @@ import { generateContentFromYouTube } from '../lib/youtubeProcessor';
 import { fetchTrendingArticles, trendingCategories, TrendingArticle } from '../lib/perplexityService';
 import { getCurrentUser, signOut, onAuthStateChange, User, getPrompts, addPrompt, deletePrompt, Prompt } from '../lib/supabase';
 
-type Tab = 'generator' | 'trending' | 'summarizer' | 'video' | 'prompts' | 'launchpilot';
+type Tab = 'generator' | 'trending' | 'summarizer' | 'video' | 'prompts' | 'launchpilot' | 'vibeclub';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('generator');
@@ -155,7 +155,8 @@ export default function Dashboard() {
     { id: 'summarizer' as Tab, name: 'AI Summarizer', icon: FileText },
     { id: 'video' as Tab, name: 'Video Summarizer', icon: Video },
     { id: 'prompts' as Tab, name: 'Prompt Library', icon: Sparkles },
-    { id: 'launchpilot' as Tab, name: 'LaunchPilot', icon: Rocket }
+    { id: 'launchpilot' as Tab, name: 'LaunchPilot', icon: Rocket },
+    { id: 'vibeclub' as Tab, name: 'Vibe Club', icon: Users }
   ];
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -2469,6 +2470,92 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Vibe Club Tab */}
+          {activeTab === 'vibeclub' && (
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-slate-900 rounded-2xl border border-slate-800 p-12 shadow-xl">
+                <div className="text-center mb-12">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mx-auto mb-6">
+                    <Users className="w-10 h-10 text-white" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-white mb-4">Welcome to Vibe Club</h2>
+                  <p className="text-xl text-slate-300 max-w-2xl mx-auto mb-6">
+                    A vibrant community for founders and solopreneurs building the future
+                  </p>
+                  <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                    Connect, learn, and grow with fellow entrepreneurs on your journey to success
+                  </p>
+                </div>
+
+                <div className="space-y-6 mb-12">
+                  <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                      <Users className="w-5 h-5 text-indigo-400" />
+                      What is Vibe Club?
+                    </h3>
+                    <p className="text-slate-300 leading-relaxed mb-4">
+                      Vibe Club is an exclusive community where founders and solopreneurs come together to:
+                    </p>
+                    <ul className="space-y-3 text-slate-300">
+                      <li className="flex items-start gap-3">
+                        <span className="text-indigo-400 mt-1">•</span>
+                        <span><strong>Share experiences</strong> - Learn from others who are on the same journey</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-indigo-400 mt-1">•</span>
+                        <span><strong>Get support</strong> - Get help when you're stuck and celebrate wins together</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-indigo-400 mt-1">•</span>
+                        <span><strong>Network</strong> - Connect with like-minded entrepreneurs and potential collaborators</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-indigo-400 mt-1">•</span>
+                        <span><strong>Learn & grow</strong> - Access resources, tips, and strategies from successful founders</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-lg border border-indigo-500/30 p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                      <Send className="w-5 h-5 text-indigo-400" />
+                      Join the Community
+                    </h3>
+                    <p className="text-slate-300 leading-relaxed mb-6">
+                      Ready to connect with amazing founders and solopreneurs? Join our Discord server and become part of the Vibe Club community!
+                    </p>
+                    <a
+                      href="https://discord.gg/A6v9RQ9N"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50"
+                    >
+                      <Users className="w-5 h-5" />
+                      Join Vibe Club on Discord
+                      <ArrowRight className="w-5 h-5" />
+                    </a>
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-700 pt-8">
+                  <h3 className="text-lg font-semibold text-white mb-4">Community Guidelines</h3>
+                  <div className="grid md:grid-cols-2 gap-4 text-slate-300">
+                    <div className="space-y-2">
+                      <p>✓ Be respectful and supportive</p>
+                      <p>✓ Share valuable insights</p>
+                      <p>✓ Help fellow members</p>
+                    </div>
+                    <div className="space-y-2">
+                      <p>✓ Keep discussions relevant</p>
+                      <p>✓ Celebrate each other's wins</p>
+                      <p>✓ Build genuine connections</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </main>
