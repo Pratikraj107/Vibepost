@@ -1,7 +1,13 @@
-import { Briefcase, Video, Newspaper, TrendingUp } from 'lucide-react';
+import { Briefcase, Video, Newspaper, TrendingUp, Rocket } from 'lucide-react';
 
 export default function UseCases() {
   const useCases = [
+    {
+      icon: Rocket,
+      persona: 'Solopreneurs & Startup Founders',
+      title: 'Launch Your Product',
+      description: 'Get complete Go-To-Market plans with LaunchPilot. From positioning to content calendar, outreach strategies, and KPIs - launch successfully without a marketing team.'
+    },
     {
       icon: Briefcase,
       persona: 'Business Owners',
@@ -36,11 +42,11 @@ export default function UseCases() {
             Who It's For
           </h2>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            Perfect for anyone who wants to grow their social presence
+            Perfect for solopreneurs, founders, creators, and anyone building their brand
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {useCases.map((useCase, index) => (
             <div
               key={index}

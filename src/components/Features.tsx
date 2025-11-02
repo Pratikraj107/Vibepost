@@ -1,4 +1,4 @@
-import { Wand2, FileText, Youtube } from 'lucide-react';
+import { Wand2, FileText, Youtube, Rocket } from 'lucide-react';
 
 export default function Features() {
   const features = [
@@ -19,6 +19,12 @@ export default function Features() {
       title: 'YouTube to Posts',
       description: 'Turn YouTube videos into compelling social posts. Perfect for content creators, marketers, and anyone looking to repurpose video content.',
       gradient: 'from-teal-500 to-emerald-500'
+    },
+    {
+      icon: Rocket,
+      title: 'LaunchPilot - GTM Plans',
+      description: 'Build your complete Go-To-Market strategy with AI. Get personalized marketing plans, content calendars, outreach strategies, and KPIs tailored for your product launch.',
+      gradient: 'from-purple-500 to-pink-500'
     }
   ];
 
@@ -27,14 +33,14 @@ export default function Features() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            Three Powerful Ways to Create
+            Everything You Need to Market Your Product
           </h2>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            Choose your preferred method and let AI do the heavy lifting
+            From content creation to complete marketing strategy - all powered by AI
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <div
               key={index}

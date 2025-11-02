@@ -1,7 +1,12 @@
-import { Clock, TrendingUp, Zap, Target, Users, Shield } from 'lucide-react';
+import { Clock, TrendingUp, Zap, Target, Users, Shield, Rocket } from 'lucide-react';
 
 export default function Benefits() {
   const benefits = [
+    {
+      icon: Rocket,
+      title: 'Complete GTM Strategy',
+      description: 'LaunchPilot generates your entire Go-To-Market plan: positioning, channels, content calendar, outreach, and KPIs. Launch like a pro, even solo.'
+    },
     {
       icon: Clock,
       title: 'Save Hours Daily',
@@ -42,7 +47,7 @@ export default function Benefits() {
             Why You'll Love It
           </h2>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            Built for creators, marketers, and businesses who want to level up their social game
+            Built for solopreneurs, startup founders, creators, and businesses who want to launch and grow without a marketing team
           </p>
         </div>
 

@@ -24,19 +24,20 @@ export default function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 backdrop-blur-sm border border-blue-500/20 mb-8 animate-fade-in">
           <Sparkles className="w-4 h-4 text-blue-400" />
-          <span className="text-sm text-blue-300">AI-Powered Content Generation</span>
+          <span className="text-sm text-blue-300">AI-Powered Marketing & Content Platform</span>
         </div>
 
         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-          Transform Ideas Into
+          Your Complete
           <span className="block bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent">
-            Viral Social Content
+            Marketing Platform
           </span>
         </h1>
 
         <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-10 leading-relaxed">
-          Generate engaging tweets and LinkedIn posts instantly. Turn articles and YouTube videos
-          into compelling social media content with the power of AI.
+          For solopreneurs and startup founders: Generate viral social content, create Go-To-Market plans, 
+          and launch your product with AI-powered marketing tools. Turn articles, videos, and ideas into 
+          compelling content that drives growth.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
