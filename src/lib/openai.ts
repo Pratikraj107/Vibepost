@@ -340,3 +340,139 @@ Make it sound like a real person wrote this, not an AI. Keep the same core messa
     throw new Error('Failed to humanize content. Please try again.');
   }
 }
+
+export interface GTMPlanRequest {
+  productName: string;
+  productDescription: string;
+  targetAudience: string;
+  shortTermGoal: string;
+  channelsTried?: string;
+}
+
+export interface GTMPlan {
+  positioning: {
+    valueProposition: string;
+    taglines: string[];
+  };
+  channels: Array<{
+    platform: string;
+    strategy: string;
+    why: string;
+  }>;
+  contentCalendar: Array<{
+    day: number;
+    content: string;
+    platform: string;
+    cta: string;
+  }>;
+  outreachStrategy: {
+    dmTemplates: string[];
+    collaborationAngles: string[];
+    influencerOutreach: string[];
+  };
+  kpis: Array<{
+    metric: string;
+    description: string;
+    target?: string;
+  }>;
+}
+
+export async function generateGTMPlan(request: GTMPlanRequest): Promise<GTMPlan> {
+  const openai = getOpenAI();
+  
+  const systemPrompt = `You are an expert Go-To-Market (GTM) strategist specializing in helping solopreneurs and founders launch their products successfully. Your task is to create a comprehensive, actionable GTM plan based on the product information provided.
+
+The plan must be structured and include:
+1. Positioning & Messaging: A clear value proposition and compelling taglines
+2. GTM Channels: Specific platforms and strategies tailored to the product
+3. Content Calendar: Daily/weekly posting ideas with CTAs for at least 7 days
+4. Outreach Strategy: DM templates, collaboration ideas, and influencer outreach tactics
+5. KPIs to Track: Key metrics that indicate traction and progress
+
+Make the plan specific, actionable, and tailored to the product and target audience.`;
+
+  const userPrompt = `Create a comprehensive Go-To-Market plan for this product:
+
+Product Name: ${request.productName}
+Product Description: ${request.productDescription}
+Target Audience: ${request.targetAudience}
+Short-term Goal: ${request.shortTermGoal}
+${request.channelsTried ? `Channels Already Tried: ${request.channelsTried}` : ''}
+
+Please provide a detailed GTM plan in JSON format with the following structure:
+{
+  "positioning": {
+    "valueProposition": "A clear, compelling value proposition that explains what makes this product unique",
+    "taglines": ["Tagline 1", "Tagline 2", "Tagline 3"]
+  },
+  "channels": [
+    {
+      "platform": "Platform name (e.g., Product Hunt, Twitter, Reddit, LinkedIn, SEO)",
+      "strategy": "Specific strategy for this platform",
+      "why": "Why this channel is relevant for this product"
+    }
+  ],
+  "contentCalendar": [
+    {
+      "day": 1,
+      "content": "Specific content idea for day 1",
+      "platform": "Platform name",
+      "cta": "Call-to-action for this content"
+    }
+  ],
+  "outreachStrategy": {
+    "dmTemplates": ["DM template 1", "DM template 2", "DM template 3"],
+    "collaborationAngles": ["Collaboration idea 1", "Collaboration idea 2"],
+    "influencerOutreach": ["Influencer outreach idea 1", "Influencer outreach idea 2"]
+  },
+  "kpis": [
+    {
+      "metric": "Metric name",
+      "description": "What this metric measures",
+      "target": "Target value or range"
+    }
+  ]
+}
+
+IMPORTANT:
+- Provide content calendar for at least 7 days (ideally 14-30 days)
+- Make all strategies specific to this product and audience
+- Include actionable, concrete steps
+- Ensure all information is relevant and realistic`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 3000,
+      top_p: 0.9,
+      frequency_penalty: 0.1,
+      presence_penalty: 0.1
+    });
+
+    const content = completion.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No GTM plan generated');
+    }
+
+    // Parse JSON from the response (it might be wrapped in markdown code blocks)
+    let jsonContent = content.trim();
+    
+    // Remove markdown code blocks if present
+    if (jsonContent.includes('```json')) {
+      jsonContent = jsonContent.split('```json')[1].split('```')[0].trim();
+    } else if (jsonContent.includes('```')) {
+      jsonContent = jsonContent.split('```')[1].split('```')[0].trim();
+    }
+
+    const plan = JSON.parse(jsonContent) as GTMPlan;
+    return plan;
+  } catch (error) {
+    console.error('Error generating GTM plan:', error);
+    throw new Error('Failed to generate GTM plan. Please try again.');
+  }
+}

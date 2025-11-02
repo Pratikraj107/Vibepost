@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, TrendingUp, FileText, Video, Send, Menu, X, LogOut, Link as LinkIcon, Copy, Check, User as UserIcon } from 'lucide-react';
+import { Sparkles, TrendingUp, FileText, Video, Send, Menu, X, LogOut, Link as LinkIcon, Copy, Check, User as UserIcon, Rocket } from 'lucide-react';
 import { Link } from './Router';
-import { generateContent, GeneratedContent, humanizeContent } from '../lib/openai';
+import { generateContent, GeneratedContent, humanizeContent, generateGTMPlan, GTMPlan, GTMPlanRequest } from '../lib/openai';
 import { generateContentFromArticle } from '../lib/articleProcessor';
 import { generateContentFromYouTube } from '../lib/youtubeProcessor';
 import { fetchTrendingArticles, trendingCategories, TrendingArticle } from '../lib/perplexityService';
 import { getCurrentUser, signOut, onAuthStateChange, User, getPrompts, addPrompt, deletePrompt, Prompt } from '../lib/supabase';
 
-type Tab = 'generator' | 'trending' | 'summarizer' | 'video' | 'prompts';
+type Tab = 'generator' | 'trending' | 'summarizer' | 'video' | 'prompts' | 'launchpilot';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('generator');
@@ -19,6 +19,18 @@ export default function Dashboard() {
     setGeneratedContent(null);
     setArticleGeneratedContent(null);
     setVideoGeneratedContent(null);
+    // Reset LaunchPilot state when switching away
+    if (tab !== 'launchpilot') {
+      setLaunchPilotStep('welcome');
+      setGtmPlan(null);
+      setGtmFormData({
+        productName: '',
+        productDescription: '',
+        targetAudience: '',
+        shortTermGoal: '',
+        channelsTried: ''
+      });
+    }
   };
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -69,6 +81,18 @@ export default function Dashboard() {
   
   // Humanize content state
   const [isHumanizing, setIsHumanizing] = useState<{[key: string]: boolean}>({});
+
+  // LaunchPilot state
+  const [launchPilotStep, setLaunchPilotStep] = useState<'welcome' | 'form' | 'generating' | 'results'>('welcome');
+  const [gtmPlan, setGtmPlan] = useState<GTMPlan | null>(null);
+  const [isGeneratingGTM, setIsGeneratingGTM] = useState(false);
+  const [gtmFormData, setGtmFormData] = useState<GTMPlanRequest>({
+    productName: '',
+    productDescription: '',
+    targetAudience: '',
+    shortTermGoal: '',
+    channelsTried: ''
+  });
 
   // Authentication state management
   useEffect(() => {
@@ -131,6 +155,7 @@ export default function Dashboard() {
     { id: 'summarizer' as Tab, name: 'AI Summarizer', icon: FileText },
     { id: 'video' as Tab, name: 'Video Summarizer', icon: Video },
     { id: 'prompts' as Tab, name: 'Prompt Library', icon: Sparkles },
+    { id: 'launchpilot' as Tab, name: 'LaunchPilot', icon: Rocket }
   ];
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -527,6 +552,78 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
     }
   };
 
+  // LaunchPilot handlers
+  const handleGTMFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!gtmFormData.productName || !gtmFormData.productDescription || !gtmFormData.targetAudience || !gtmFormData.shortTermGoal) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    setLaunchPilotStep('generating');
+    setIsGeneratingGTM(true);
+    
+    try {
+      const plan = await generateGTMPlan(gtmFormData);
+      setGtmPlan(plan);
+      setLaunchPilotStep('results');
+    } catch (error) {
+      console.error('Error generating GTM plan:', error);
+      alert('Failed to generate GTM plan. Please try again.');
+      setLaunchPilotStep('form');
+    } finally {
+      setIsGeneratingGTM(false);
+    }
+  };
+
+  const handleCopyGTMPlan = () => {
+    if (!gtmPlan) return;
+    const planText = formatGTMPlanAsText(gtmPlan);
+    navigator.clipboard.writeText(planText);
+    alert('GTM Plan copied to clipboard!');
+  };
+
+  const formatGTMPlanAsText = (plan: GTMPlan): string => {
+    let text = `GO-TO-MARKET PLAN\n\n`;
+    text += `🎯 POSITIONING & MESSAGING\n`;
+    text += `Value Proposition: ${plan.positioning.valueProposition}\n\n`;
+    text += `Taglines:\n${plan.positioning.taglines.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\n`;
+    
+    text += `📣 GTM CHANNELS\n`;
+    plan.channels.forEach((channel, i) => {
+      text += `${i + 1}. ${channel.platform}\n`;
+      text += `   Strategy: ${channel.strategy}\n`;
+      text += `   Why: ${channel.why}\n\n`;
+    });
+    
+    text += `🗓️ CONTENT CALENDAR\n`;
+    plan.contentCalendar.forEach((item) => {
+      text += `Day ${item.day} (${item.platform}):\n`;
+      text += `   ${item.content}\n`;
+      text += `   CTA: ${item.cta}\n\n`;
+    });
+    
+    text += `🤝 OUTREACH STRATEGY\n`;
+    text += `DM Templates:\n${plan.outreachStrategy.dmTemplates.map((t, i) => `${i + 1}. ${t}`).join('\n\n')}\n\n`;
+    text += `Collaboration Angles:\n${plan.outreachStrategy.collaborationAngles.map((c, i) => `${i + 1}. ${c}`).join('\n')}\n\n`;
+    text += `Influencer Outreach:\n${plan.outreachStrategy.influencerOutreach.map((i, idx) => `${idx + 1}. ${i}`).join('\n')}\n\n`;
+    
+    text += `📈 KPIs TO TRACK\n`;
+    plan.kpis.forEach((kpi, i) => {
+      text += `${i + 1}. ${kpi.metric}\n`;
+      text += `   ${kpi.description}\n`;
+      if (kpi.target) text += `   Target: ${kpi.target}\n`;
+      text += '\n';
+    });
+    
+    return text;
+  };
+
+  const handleRegenerateGTMPlan = () => {
+    setLaunchPilotStep('form');
+    setGtmPlan(null);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 flex">
       {/* Mobile sidebar backdrop */}
@@ -550,7 +647,7 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
                 <span className="text-white font-bold text-lg">AI</span>
               </div>
-              <span className="text-xl font-bold text-white">ContentGen</span>
+              <span className="text-xl font-bold text-white">VibePost</span>
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -2086,6 +2183,294 @@ Generate the content now, ensuring you follow ALL requirements precisely.`;
                </div>
              </div>
            )}
+
+          {/* LaunchPilot Tab */}
+          {activeTab === 'launchpilot' && (
+            <div className="max-w-5xl mx-auto">
+              {launchPilotStep === 'welcome' && (
+                <div className="bg-slate-900 rounded-2xl border border-slate-800 p-12 shadow-xl text-center">
+                  <div className="mb-8">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-6">
+                      <Rocket className="w-10 h-10 text-white" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-white mb-4">Welcome to LaunchPilot</h2>
+                    <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
+                      Tell us about your product — we'll build your personalized Go-To-Market (GTM) plan using AI.
+                    </p>
+                    <button
+                      onClick={() => setLaunchPilotStep('form')}
+                      className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold text-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105"
+                    >
+                      Generate My Plan
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {launchPilotStep === 'form' && (
+                <div className="bg-slate-900 rounded-2xl border border-slate-800 p-8 shadow-xl">
+                  <div className="mb-6">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                        <Rocket className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-white">Create Your GTM Plan</h2>
+                        <p className="text-slate-400 text-sm">Fill in the details about your product</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleGTMFormSubmit} className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-300 mb-2">
+                        1. What's your product name? <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={gtmFormData.productName}
+                        onChange={(e) => setGtmFormData({...gtmFormData, productName: e.target.value})}
+                        placeholder="e.g., MyAwesomeApp"
+                        className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-300 mb-2">
+                        2. Describe it in one sentence <span className="text-red-400">*</span>
+                      </label>
+                      <textarea
+                        value={gtmFormData.productDescription}
+                        onChange={(e) => setGtmFormData({...gtmFormData, productDescription: e.target.value})}
+                        placeholder="A brief description of what your product does..."
+                        rows={3}
+                        className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-300 mb-2">
+                        3. Who is your target audience? <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={gtmFormData.targetAudience}
+                        onChange={(e) => setGtmFormData({...gtmFormData, targetAudience: e.target.value})}
+                        placeholder="e.g., Solopreneurs, SaaS founders, Content creators"
+                        className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-300 mb-2">
+                        4. What's your main short-term goal? <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={gtmFormData.shortTermGoal}
+                        onChange={(e) => setGtmFormData({...gtmFormData, shortTermGoal: e.target.value})}
+                        placeholder="e.g., Get 100 users, Increase traffic by 50%, Get 10 paying customers"
+                        className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-300 mb-2">
+                        5. Which channels have you already tried? (optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={gtmFormData.channelsTried}
+                        onChange={(e) => setGtmFormData({...gtmFormData, channelsTried: e.target.value})}
+                        placeholder="e.g., Twitter, Product Hunt, Reddit"
+                        className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div className="flex gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setLaunchPilotStep('welcome')}
+                        className="px-6 py-3 bg-slate-700 text-slate-300 rounded-lg font-semibold hover:bg-slate-600 transition-colors"
+                      >
+                        Back
+                      </button>
+                      <button
+                        type="submit"
+                        className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105"
+                      >
+                        Generate GTM Plan
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {launchPilotStep === 'generating' && (
+                <div className="bg-slate-900 rounded-2xl border border-slate-800 p-12 shadow-xl text-center">
+                  <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-6"></div>
+                  <h2 className="text-2xl font-bold text-white mb-4">Analyzing your product and generating your GTM plan...</h2>
+                  <p className="text-slate-400">This may take a few moments</p>
+                </div>
+              )}
+
+              {launchPilotStep === 'results' && gtmPlan && (
+                <div className="space-y-6">
+                  <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h2 className="text-2xl font-bold text-white">Your Go-To-Market Plan</h2>
+                        <p className="text-slate-400 text-sm">Tailored specifically for {gtmFormData.productName}</p>
+                      </div>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={handleCopyGTMPlan}
+                          className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+                        >
+                          <Copy className="w-4 h-4" />
+                          Copy Plan
+                        </button>
+                        <button
+                          onClick={handleRegenerateGTMPlan}
+                          className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                        >
+                          <Send className="w-4 h-4" />
+                          Regenerate
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Positioning & Messaging */}
+                  <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-2xl">🎯</span>
+                      <h3 className="text-xl font-bold text-white">Positioning & Messaging</h3>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-400 mb-2">Value Proposition</h4>
+                        <p className="text-slate-300 leading-relaxed">{gtmPlan.positioning.valueProposition}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-400 mb-2">Tagline Ideas</h4>
+                        <ul className="space-y-2">
+                          {gtmPlan.positioning.taglines.map((tagline, i) => (
+                            <li key={i} className="text-slate-300 flex items-start gap-2">
+                              <span className="text-purple-400">•</span>
+                              <span>{tagline}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* GTM Channels */}
+                  <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-2xl">📣</span>
+                      <h3 className="text-xl font-bold text-white">GTM Channels</h3>
+                    </div>
+                    <div className="space-y-4">
+                      {gtmPlan.channels.map((channel, i) => (
+                        <div key={i} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                          <h4 className="text-lg font-semibold text-white mb-2">{channel.platform}</h4>
+                          <p className="text-slate-300 mb-2">{channel.strategy}</p>
+                          <p className="text-sm text-slate-400"><strong>Why:</strong> {channel.why}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Content Calendar */}
+                  <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-2xl">🗓️</span>
+                      <h3 className="text-xl font-bold text-white">Content Calendar</h3>
+                    </div>
+                    <div className="space-y-3">
+                      {gtmPlan.contentCalendar.map((item, i) => (
+                        <div key={i} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-semibold text-purple-400">Day {item.day}</span>
+                            <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-300 rounded">{item.platform}</span>
+                          </div>
+                          <p className="text-slate-300 mb-2">{item.content}</p>
+                          <p className="text-sm text-slate-400"><strong>CTA:</strong> {item.cta}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Outreach Strategy */}
+                  <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-2xl">🤝</span>
+                      <h3 className="text-xl font-bold text-white">Outreach Strategy</h3>
+                    </div>
+                    <div className="space-y-6">
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-400 mb-3">DM Templates</h4>
+                        <div className="space-y-3">
+                          {gtmPlan.outreachStrategy.dmTemplates.map((template, i) => (
+                            <div key={i} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                              <p className="text-slate-300 whitespace-pre-wrap">{template}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-400 mb-3">Collaboration Angles</h4>
+                        <ul className="space-y-2">
+                          {gtmPlan.outreachStrategy.collaborationAngles.map((angle, i) => (
+                            <li key={i} className="text-slate-300 flex items-start gap-2">
+                              <span className="text-purple-400">•</span>
+                              <span>{angle}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-400 mb-3">Influencer Outreach</h4>
+                        <ul className="space-y-2">
+                          {gtmPlan.outreachStrategy.influencerOutreach.map((outreach, i) => (
+                            <li key={i} className="text-slate-300 flex items-start gap-2">
+                              <span className="text-purple-400">•</span>
+                              <span>{outreach}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* KPIs */}
+                  <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-2xl">📈</span>
+                      <h3 className="text-xl font-bold text-white">KPIs to Track</h3>
+                    </div>
+                    <div className="space-y-4">
+                      {gtmPlan.kpis.map((kpi, i) => (
+                        <div key={i} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                          <h4 className="text-lg font-semibold text-white mb-2">{kpi.metric}</h4>
+                          <p className="text-slate-300 mb-2">{kpi.description}</p>
+                          {kpi.target && (
+                            <p className="text-sm text-purple-400"><strong>Target:</strong> {kpi.target}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </main>
       </div>
     </div>
